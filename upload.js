@@ -1,22 +1,69 @@
 /*****************************************************
  * 📘 Anjali Quiz Bank – upload.js
  * Control Panel → GitHub JSON Auto Merge System
- * ✅ बिना Token भी कार्यरत (Token वैकल्पिक)
+ * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter
  *****************************************************/
 
 // 🔹 अपनी जानकारी यहाँ डालें
 const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";   // अपना GitHub यूज़रनेम
 const GITHUB_REPO = "Anjali_Quiz_Bank";           // Repo का नाम
 const GITHUB_BRANCH = "main";                     // Branch
-const GITHUB_TOKEN = ""; // 🔒 वैकल्पिक — Token लिखें (optional)
+let GITHUB_TOKEN = ""; // 🔒 वैकल्पिक — Token लिखें (optional)
 
-/*****************************************************
- * 🔹 Repo में JSON का Base Path
- *****************************************************/
+// 🔹 Repo में JSON का Base Path
 const DATA_PATH = "data/";
 
 /*****************************************************
- * 🔹 लोकल डेटा लोड करना (Control Panel से)
+ * 🔹 Request Counter System
+ *****************************************************/
+const REQUEST_LIMIT = 60;
+let requestCount = parseInt(localStorage.getItem("anjali_request_count") || "0");
+let lastReset = localStorage.getItem("anjali_request_reset") || Date.now();
+
+function initRequestCounter() {
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+
+  // हर घंटे Reset
+  if (now - lastReset > oneHour) {
+    requestCount = 0;
+    lastReset = now;
+    localStorage.setItem("anjali_request_count", "0");
+    localStorage.setItem("anjali_request_reset", now);
+  }
+
+  const counter = document.createElement("div");
+  counter.id = "requestCounter";
+  counter.style.position = "fixed";
+  counter.style.bottom = "10px";
+  counter.style.right = "10px";
+  counter.style.background = "#eef6ff";
+  counter.style.color = "#2d3436";
+  counter.style.border = "1px solid #ccc";
+  counter.style.borderRadius = "8px";
+  counter.style.padding = "8px 12px";
+  counter.style.fontSize = "14px";
+  counter.style.boxShadow = "0 0 6px rgba(0,0,0,0.1)";
+  counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
+  document.body.appendChild(counter);
+}
+
+function updateRequestCounter() {
+  requestCount++;
+  localStorage.setItem("anjali_request_count", requestCount.toString());
+  const counter = document.getElementById("requestCounter");
+  if (counter)
+    counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
+
+  if (requestCount >= REQUEST_LIMIT) {
+    alert("⚠️ GitHub API की 60 अनुरोध सीमा पूरी हो गई है। कृपया 1 घंटे बाद पुनः प्रयास करें।");
+  } else if (requestCount >= REQUEST_LIMIT * 0.8) {
+    console.warn("⚠️ आप सीमा के करीब पहुँच रहे हैं!");
+  }
+}
+
+/*****************************************************
+ * 🔹 लोकल डेटा लोड करना
  *****************************************************/
 async function getLocalData() {
   const data = localStorage.getItem("anjaliTempData");
@@ -28,9 +75,11 @@ async function getLocalData() {
 }
 
 /*****************************************************
- * 🔹 GitHub से JSON फाइल fetch करना (Token optional)
+ * 🔹 GitHub से JSON फाइल fetch करना
  *****************************************************/
 async function fetchFromGitHub(fileName) {
+  updateRequestCounter();
+
   const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
   const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
 
@@ -61,9 +110,7 @@ function mergeData(remoteData, localData, subjectName) {
     const subData = localData[subjectName][sub];
     if (!updated.subtopics[sub]) updated.subtopics[sub] = { mcq: [], one_liner: [] };
 
-    // Merge MCQ
     updated.subtopics[sub].mcq.push(...subData.mcq);
-    // Merge One-Liners
     updated.subtopics[sub].one_liner.push(...subData.one_liner);
   }
 
@@ -74,21 +121,16 @@ function mergeData(remoteData, localData, subjectName) {
  * 🔹 अपडेटेड JSON GitHub पर वापस अपलोड करना
  *****************************************************/
 async function uploadToGitHub(fileName, data, sha = null) {
+  updateRequestCounter();
+
   const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
-  const headers = {
-    "Content-Type": "application/json",
-  };
+  const headers = { "Content-Type": "application/json" };
   if (GITHUB_TOKEN) headers["Authorization"] = `token ${GITHUB_TOKEN}`;
 
   const message = `📤 Updated ${fileName} from Anjali Control Panel`;
   const content = btoa(JSON.stringify(data, null, 2));
 
-  const payload = {
-    message,
-    content,
-    branch: GITHUB_BRANCH,
-    sha: sha,
-  };
+  const payload = { message, content, branch: GITHUB_BRANCH, sha: sha };
 
   const res = await fetch(url, {
     method: "PUT",
@@ -137,9 +179,11 @@ async function uploadAll() {
 }
 
 /*****************************************************
- * 🔹 Control Panel से Trigger बटन
+ * 🔹 Control Panel से Trigger बटन और Token Box
  *****************************************************/
 document.addEventListener("DOMContentLoaded", () => {
+  initRequestCounter();
+
   const btn = document.createElement("button");
   btn.textContent = "⬆️ Upload to GitHub";
   btn.style.background = "#2d6a4f";
@@ -149,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
   btn.onclick = uploadAll;
   document.querySelector(".container").appendChild(btn);
 
-  // Token लिखने का विकल्प (Optional Field)
   const tokenBox = document.createElement("input");
   tokenBox.type = "password";
   tokenBox.placeholder = "🔑 यदि Token है, यहाँ लिखें (optional)";
