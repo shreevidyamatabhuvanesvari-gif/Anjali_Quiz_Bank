@@ -1,0 +1,31 @@
+{
+  "subject": "Mental Aptitude / Reasoning",
+  "subtopics": {
+    "सादृश्य": { "mcq": [], "one_liner": [] },
+    "वर्गीकरण": { "mcq": [], "one_liner": [] },
+    "श्रेणी": { "mcq": [], "one_liner": [] },
+    "कोडिंग": { "mcq": [], "one_liner": [] },
+    "रक्त संबंध": { "mcq": [], "one_liner": [] },
+    "दिशा": { "mcq": [], "one_liner": [] },
+    "क्रम": { "mcq": [], "one_liner": [] },
+    "बैठक": { "mcq": [], "one_liner": [] },
+    "पहेली": { "mcq": [], "one_liner": [] },
+    "कथन": { "mcq": [], "one_liner": [] },
+    "तर्क": { "mcq": [], "one_liner": [] },
+    "कारण": { "mcq": [], "one_liner": [] },
+    "निर्णय": { "mcq": [], "one_liner": [] },
+    "दर्पण": { "mcq": [], "one_liner": [] },
+    "जल": { "mcq": [], "one_liner": [] },
+    "घन": { "mcq": [], "one_liner": [] },
+    "कागज": { "mcq": [], "one_liner": [] },
+    "चित्र": { "mcq": [], "one_liner": [] },
+    "अक्षर": { "mcq": [], "one_liner": [] },
+    "संख्या": { "mcq": [], "one_liner": [] },
+    "वेन": { "mcq": [], "one_liner": [] },
+    "डेटा": { "mcq": [], "one_liner": [] },
+    "घड़ी": { "mcq": [], "one_liner": [] },
+    "लुप्त": { "mcq": [], "one_liner": [] },
+    "तार्किक": { "mcq": [], "one_liner": [] },
+    "गैर मौखिक": { "mcq": [], "one_liner": [] }
+  }
+}
