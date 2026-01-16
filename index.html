@@ -111,6 +111,8 @@ Exp: दिल्ली भारत की राजधानी है।
 
     <button id="saveBtn">💾 सेव करें</button>
 
+    <button id="deleteBtn" class="danger">🗑️ चयनित प्रश्न हटाएँ</button>
+
     <div class="note">
       💡 *नोट:*  
       अब सभी विषयों की JSON फाइलें (<code>/data/</code> में मौजूद)  
@@ -229,5 +231,18 @@ Exp: दिल्ली भारत की राजधानी है।
     window.addEventListener("DOMContentLoaded", loadAllData);
   </script>
   <script src="upload.js"></script>
+  
+<!-- 🗑️ Custom Delete Confirmation Box -->
+<div id="confirmBox" class="hidden">
+  <div class="confirm-content">
+    <h3>⚠️ पुष्टि करें</h3>
+    <p id="confirmMessage">क्या आप यह प्रश्न हटाना चाहते हैं?</p>
+    <div class="confirm-buttons">
+      <button id="confirmYes" class="danger">हाँ, हटाएँ</button>
+      <button id="confirmNo" class="cancel">रद्द करें</button>
+    </div>
+  </div>
+</div>
+  
 </body>
 </html>
