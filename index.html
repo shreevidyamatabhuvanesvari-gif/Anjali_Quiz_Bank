@@ -2,9 +2,9 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <title>📘 Anjali Quiz Bank – Control Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="../manifest.json">
+  <title>📘 Anjali Quiz Bank – Control Panel</title>
+  <link rel="manifest" href="manifest.json">
 
   <style>
     body {
@@ -74,6 +74,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <header>📘 Anjali Quiz Bank – Control Panel</header>
@@ -81,12 +82,12 @@
   <div class="container">
     <label for="subject">विषय चुनें:</label>
     <select id="subject">
-      <option value="">-- Select Subject --</option>
+      <option value="">-- विषय चुनें --</option>
     </select>
 
     <label for="subtopic">उप-विषय चुनें:</label>
     <select id="subtopic">
-      <option value="">-- Select Subtopic --</option>
+      <option value="">-- उप-विषय चुनें --</option>
     </select>
 
     <label for="type">प्रश्न का प्रकार चुनें:</label>
@@ -112,68 +113,89 @@ Exp: दिल्ली भारत की राजधानी है।
 
     <div class="note">
       💡 *नोट:*  
-      आप एक साथ कई प्रश्न दर्ज कर सकते हैं (लाइन ब्रेक से अलग)।  
-      अभी सेव किए गए प्रश्न ब्राउज़र में लोकल रूप से सेव होंगे।  
-      अगले चरण में यह JSON GitHub डेटा में merge होगा।
+      सभी विषयों और उपविषयों की JSON फाइलें GitHub के <code>/data/</code> फोल्डर से fetch होकर लोड होती हैं।  
+      आप एक साथ कई प्रश्न दर्ज कर सकते हैं।  
+      सेव किए गए प्रश्न ब्राउज़र में लोकल रूप से सेव होंगे।
     </div>
   </div>
 
   <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
 
   <script>
-    // --- Step 1: विषय लोड करें ---
-    const subjects = {
-      "General Knowledge": ["History", "Geography", "Polity", "Economy", "Science", "Current Affairs"],
-      "General Hindi": ["वर्णमाला", "संधि", "समास", "उपसर्ग", "प्रत्यय", "पर्यायवाची", "विलोम", "अनेकार्थी", "तत्सम-तद्भव", "लोकोक्तियाँ", "मुहावरे", "वाक्य शुद्धि", "वर्तनी", "वाक्यांश", "शब्द शुद्धि", "कारक", "लिंग", "वचन", "काल", "रस", "छंद", "अलंकार", "अपठित गद्यांश", "अपठित पद्यांश", "वाक्य रूपांतरण", "वाक्य संयोजन"],
-      "Numerical & Mental Ability": ["संख्या पद्धति", "दशमलव एवं भिन्न", "प्रतिशत", "लाभ और हानि", "साधारण ब्याज", "चक्रवृद्धि ब्याज", "अनुपात और समानुपात", "औसत", "समय और कार्य", "समय और दूरी", "गति", "ट्रेन", "नाव और धारा", "मिश्रण", "आयु", "क्षेत्रफल", "परिमाप", "आयतन", "सांख्यिकी", "सरलीकरण", "LCM", "HCF", "बीजगणित", "समीकरण", "श्रेणी", "आंकड़ा"],
-      "Mental Aptitude / Reasoning": ["सादृश्य", "वर्गीकरण", "श्रेणी", "कोडिंग", "रक्त संबंध", "दिशा", "क्रम", "बैठक", "पहेली", "कथन", "तर्क", "कारण", "निर्णय", "दर्पण", "जल", "घन", "कागज", "चित्र", "अक्षर", "संख्या", "वेन", "डेटा", "घड़ी", "लुप्त", "तार्किक", "गैर मौखिक"]
-    };
+    /**************************************************************
+     *  🔹 FETCH LINKING SYSTEM
+     *  यह भाग /data/ फोल्डर की सभी JSON फाइलें लोड करता है
+     **************************************************************/
+    const dataFiles = [
+      "general_knowledge.json",
+      "general_hindi.json",
+      "numerical_ability.json",
+      "reasoning.json"
+    ];
 
+    const allData = {};
+
+    async function loadAllData() {
+      for (let file of dataFiles) {
+        try {
+          const res = await fetch(`./data/${file}`);
+          const json = await res.json();
+          allData[json.subject] = json.subtopics;
+        } catch (e) {
+          console.warn("⚠️ डेटा लोड करने में समस्या:", file, e);
+        }
+      }
+      console.log("📚 सभी विषय लोड हुए:", allData);
+      populateSubjects();
+    }
+
+    // Dropdowns
     const subjectSelect = document.getElementById("subject");
     const subtopicSelect = document.getElementById("subtopic");
-    const saveBtn = document.getElementById("saveBtn");
 
-    // --- Step 2: विषय Dropdown Populate करें ---
-    Object.keys(subjects).forEach(sub => {
-      const opt = document.createElement("option");
-      opt.value = sub;
-      opt.textContent = sub;
-      subjectSelect.appendChild(opt);
-    });
+    function populateSubjects() {
+      subjectSelect.innerHTML = `<option value="">-- विषय चुनें --</option>`;
+      Object.keys(allData).forEach(subject => {
+        const opt = document.createElement("option");
+        opt.value = subject;
+        opt.textContent = subject;
+        subjectSelect.appendChild(opt);
+      });
+    }
 
-    // --- Step 3: उपविषय Dropdown अपडेट करें ---
     subjectSelect.addEventListener("change", () => {
-      const subs = subjects[subjectSelect.value] || [];
-      subtopicSelect.innerHTML = `<option value="">-- Select Subtopic --</option>`;
-      subs.forEach(st => {
-        const o = document.createElement("option");
-        o.value = st;
-        o.textContent = st;
-        subtopicSelect.appendChild(o);
+      const subs = allData[subjectSelect.value] || {};
+      subtopicSelect.innerHTML = `<option value="">-- उप-विषय चुनें --</option>`;
+      Object.keys(subs).forEach(st => {
+        const opt = document.createElement("option");
+        opt.value = st;
+        opt.textContent = st;
+        subtopicSelect.appendChild(opt);
       });
     });
 
-    // --- Step 4: प्रश्न सेव (लोकल JSON बनाना) ---
-    saveBtn.addEventListener("click", () => {
+    /**************************************************************
+     *  🔹 सेव बटन (लोकल टेस्टिंग के लिए)
+     **************************************************************/
+    document.getElementById("saveBtn").addEventListener("click", () => {
       const subject = subjectSelect.value;
       const subtopic = subtopicSelect.value;
       const type = document.getElementById("type").value;
       const text = document.getElementById("questionData").value.trim();
 
       if (!subject || !subtopic || !text) {
-        alert("कृपया सभी फ़ील्ड भरें!");
+        alert("⚠️ कृपया सभी फ़ील्ड भरें!");
         return;
       }
 
-      const lines = text.split("\n").filter(x => x.trim() !== "");
-      const savedData = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
-
-      savedData[subject] = savedData[subject] || {};
-      savedData[subject][subtopic] = savedData[subject][subtopic] || { mcq: [], one_liner: [] };
+      const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+      saved[subject] = saved[subject] || {};
+      saved[subject][subtopic] = saved[subject][subtopic] || { mcq: [], one_liner: [] };
 
       if (type === "mcq") {
         let qset = [];
         let buffer = {};
+        const lines = text.split("\n").filter(x => x.trim() !== "");
         lines.forEach(line => {
           if (line.startsWith("Q)")) buffer.q = line.replace("Q)", "").trim();
           else if (line.startsWith("A)")) buffer.a = line.replace("A)", "").trim();
@@ -187,15 +209,23 @@ Exp: दिल्ली भारत की राजधानी है।
             buffer = {};
           }
         });
-        savedData[subject][subtopic].mcq.push(...qset);
+        saved[subject][subtopic].mcq.push(...qset);
       } else {
-        lines.forEach(l => savedData[subject][subtopic].one_liner.push({ q: l }));
+        const lines = text.split("\n").filter(x => x.trim() !== "");
+        lines.forEach(line => {
+          saved[subject][subtopic].one_liner.push({ q: line.trim() });
+        });
       }
 
-      localStorage.setItem("anjaliTempData", JSON.stringify(savedData));
-      alert("✅ प्रश्न सफलतापूर्वक सेव किए गए (लोकल रूप में)!");
+      localStorage.setItem("anjaliTempData", JSON.stringify(saved));
+      alert("✅ प्रश्न लोकल रूप से सेव किए गए!");
       document.getElementById("questionData").value = "";
     });
+
+    /**************************************************************
+     *  पेज लोड होते ही डेटा लोड करें
+     **************************************************************/
+    window.addEventListener("DOMContentLoaded", loadAllData);
   </script>
 </body>
-  </html>
+</html>
