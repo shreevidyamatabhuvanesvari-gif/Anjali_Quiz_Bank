@@ -1,0 +1,31 @@
+{
+  "subject": "General Hindi",
+  "subtopics": {
+    "वर्णमाला": { "mcq": [], "one_liner": [] },
+    "संधि": { "mcq": [], "one_liner": [] },
+    "समास": { "mcq": [], "one_liner": [] },
+    "उपसर्ग": { "mcq": [], "one_liner": [] },
+    "प्रत्यय": { "mcq": [], "one_liner": [] },
+    "पर्यायवाची": { "mcq": [], "one_liner": [] },
+    "विलोम": { "mcq": [], "one_liner": [] },
+    "अनेकार्थी": { "mcq": [], "one_liner": [] },
+    "तत्सम-तद्भव": { "mcq": [], "one_liner": [] },
+    "लोकोक्तियाँ": { "mcq": [], "one_liner": [] },
+    "मुहावरे": { "mcq": [], "one_liner": [] },
+    "वाक्य शुद्धि": { "mcq": [], "one_liner": [] },
+    "वर्तनी": { "mcq": [], "one_liner": [] },
+    "वाक्यांश": { "mcq": [], "one_liner": [] },
+    "शब्द शुद्धि": { "mcq": [], "one_liner": [] },
+    "कारक": { "mcq": [], "one_liner": [] },
+    "लिंग": { "mcq": [], "one_liner": [] },
+    "वचन": { "mcq": [], "one_liner": [] },
+    "काल": { "mcq": [], "one_liner": [] },
+    "रस": { "mcq": [], "one_liner": [] },
+    "छंद": { "mcq": [], "one_liner": [] },
+    "अलंकार": { "mcq": [], "one_liner": [] },
+    "अपठित गद्यांश": { "mcq": [], "one_liner": [] },
+    "अपठित पद्यांश": { "mcq": [], "one_liner": [] },
+    "वाक्य रूपांतरण": { "mcq": [], "one_liner": [] },
+    "वाक्य संयोजन": { "mcq": [], "one_liner": [] }
+  }
+}
