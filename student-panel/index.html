@@ -4,108 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎓 Anjali Quiz Bank – Student Panel</title>
-
-  <style>
-    body {
-      font-family: "Poppins", system-ui, sans-serif;
-      background: linear-gradient(135deg, #fff5f5, #fff);
-      color: #222;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background: #8b2d2d;
-      color: white;
-      font-size: 26px;
-      font-weight: bold;
-      padding: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
-    main {
-      margin: 30px auto;
-      max-width: 600px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    #questionBox {
-      font-size: 20px;
-      margin-bottom: 15px;
-      color: #8b2d2d;
-      font-weight: bold;
-    }
-
-    .options {
-      text-align: left;
-      margin: 20px auto;
-      max-width: 400px;
-    }
-
-    .options button {
-      display: block;
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      font-size: 18px;
-      border: 1px solid #8b2d2d;
-      border-radius: 6px;
-      background: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .options button:hover {
-      background: #fbeaea;
-    }
-
-    #anjaliResponse {
-      margin-top: 20px;
-      font-size: 18px;
-      font-style: italic;
-      color: #333;
-    }
-
-    .mic-button {
-      margin-top: 20px;
-      background: #8b2d2d;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 18px;
-    }
-
-    .mic-button:hover {
-      background: #a33a3a;
-    }
-
-    footer {
-      margin-top: 40px;
-      color: #777;
-      font-size: 14px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   <header>🎓 Anjali Quiz Bank – Student Panel</header>
 
-  <main>
-    <div id="questionBox">📖 प्रश्न लोड हो रहे हैं...</div>
-    <div class="options" id="optionsBox"></div>
+  <main class="container">
+    <h2>नमस्ते विद्यार्थी! 👋</h2>
+    <p class="intro">अंजली कहती है — “सीखना कभी बंद मत करो, सफलता स्वयं रास्ता बनाती है।”</p>
 
-    <button class="mic-button" id="micBtn">🎤 बोलकर उत्तर दें</button>
+    <div class="selector">
+      <label>📘 विषय चुनें:</label>
+      <select id="subject" onchange="loadSubtopics()">
+        <option value="">-- विषय चुनें --</option>
+      </select>
 
-    <div id="anjaliResponse"></div>
+      <label>📗 उप-विषय चुनें:</label>
+      <select id="subtopic">
+        <option value="">-- उप-विषय चुनें --</option>
+      </select>
+
+      <div id="modeBox">
+        <button id="studyBtn" class="modeBtn hidden" onclick="startStudy()">📖 Study Mode</button>
+        <button id="quizBtn" class="modeBtn hidden" onclick="startQuiz()">🎯 Quiz Mode</button>
+      </div>
+    </div>
+
+    <div id="questionBox" class="hidden">
+      <p id="questionText"></p>
+      <div id="optionsBox" class="hidden"></div>
+      <p id="explanationText" class="hidden"></p>
+
+      <div id="controls">
+        <button id="nextBtn" class="hidden" onclick="nextQuestion()">अगला ➡️</button>
+        <button id="backBtn" class="hidden" onclick="resetPanel()">🔙 वापस जाएँ</button>
+      </div>
+    </div>
   </main>
 
-  <footer>© 2026 Anjali Quiz Bank | Voice Mode Active</footer>
+  <footer>© 2026 Anjali Quiz Bank | Voice Powered by अंजली 💬</footer>
 
   <script src="script.js"></script>
 </body>
