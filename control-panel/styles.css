@@ -159,3 +159,18 @@ button.cancel {
 button.cancel:hover {
   background: #999;
 }
+
+.question-list {
+  margin-top: 12px;
+  padding: 10px;
+  background: #fffaf0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.hidden {
+  display: none;
+}
