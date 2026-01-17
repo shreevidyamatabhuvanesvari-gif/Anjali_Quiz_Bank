@@ -1,7 +1,7 @@
 /*****************************************************
  * 📘 Anjali Quiz Bank – upload.js
  * Control Panel → GitHub JSON Auto Merge System
- * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter + Selective Delete + View Questions (Fixed Undefined Issue)
+ * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter + Delete Confirmation Box + View Questions
  *****************************************************/
 
 // 🔹 अपनी जानकारी यहाँ डालें
@@ -11,7 +11,7 @@ const GITHUB_BRANCH = "main";                     // Branch
 let GITHUB_TOKEN = ""; // 🔒 वैकल्पिक — Token लिखें (optional)
 
 // 🔹 Repo में JSON का Base Path
-const DATA_PATH = "../data/";
+const DATA_PATH = "data/";
 
 /*****************************************************
  * 🔹 Request Counter System
@@ -147,7 +147,77 @@ async function uploadToGitHub(fileName, data, sha = null) {
 }
 
 /*****************************************************
- * 🔹 View Questions Logic (Fixed Undefined Issue)
+ * 🔹 मुख्य Function – सबकुछ संभालेगा
+ *****************************************************/
+async function uploadAll() {
+  const localData = await getLocalData();
+  if (!localData) return;
+
+  const fileMap = {
+    "General Knowledge": "general_knowledge.json",
+    "General Hindi": "general_hindi.json",
+    "Numerical & Mental Ability": "numerical_ability.json",
+    "Mental Aptitude / Reasoning": "reasoning.json",
+  };
+
+  for (const subjectName in localData) {
+    const fileName = fileMap[subjectName];
+    if (!fileName) continue;
+
+    console.log(`📥 Fetching: ${fileName}`);
+    const { content: remoteContent, sha } = await fetchFromGitHub(fileName);
+
+    const merged = mergeData(remoteContent, localData, subjectName);
+
+    console.log(`📤 Uploading: ${fileName}`);
+    await uploadToGitHub(fileName, merged, sha);
+  }
+
+  alert("✅ सभी प्रश्न GitHub पर सफलतापूर्वक अपलोड किए गए!");
+  localStorage.removeItem("anjaliTempData");
+}
+
+/*****************************************************
+ * 🔹 Custom Delete Confirmation Logic
+ *****************************************************/
+function deleteSelectedQuestions() {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+
+  if (!subject || !subtopic) {
+    alert("⚠️ कृपया विषय और उप-विषय चुनें जिनके प्रश्न हटाने हैं।");
+    return;
+  }
+
+  document.getElementById("confirmMessage").textContent =
+    `"${subject}" → "${subtopic}" के सभी प्रश्न हटाने हैं?`;
+
+  const confirmBox = document.getElementById("confirmBox");
+  confirmBox.classList.remove("hidden");
+
+  const yesBtn = document.getElementById("confirmYes");
+  const noBtn = document.getElementById("confirmNo");
+
+  yesBtn.onclick = () => {
+    confirmBox.classList.add("hidden");
+
+    const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+    if (saved[subject] && saved[subject][subtopic]) {
+      saved[subject][subtopic] = { mcq: [], one_liner: [] };
+      localStorage.setItem("anjaliTempData", JSON.stringify(saved));
+      alert(`🗑️ "${subject}" → "${subtopic}" के सभी प्रश्न हटा दिए गए हैं।`);
+    } else {
+      alert("⚠️ कोई प्रश्न डेटा नहीं मिला।");
+    }
+  };
+
+  noBtn.onclick = () => {
+    confirmBox.classList.add("hidden");
+  };
+}
+
+/*****************************************************
+ * 🔹 View Questions Logic
  *****************************************************/
 function viewQuestions() {
   const subject = document.getElementById("subject").value;
@@ -169,101 +239,21 @@ function viewQuestions() {
     if (data.mcq.length) {
       html += `<b>📘 MCQ (${data.mcq.length})</b><hr>`;
       data.mcq.forEach((q, i) => {
-        const question = q.q || q.question || "❓ (प्रश्न नहीं मिला)";
-        const a = q.a || q.options?.A || "-";
-        const b = q.b || q.options?.B || "-";
-        const c = q.c || q.options?.C || "-";
-        const d = q.d || q.options?.D || "-";
-        const correct = q.correct || q.answer || "-";
-        const exp = q.exp || q.explanation || "(कोई व्याख्या नहीं)";
-        html += `<b>${i + 1}. ${question}</b><br>
-        A) ${a}<br>B) ${b}<br>C) ${c}<br>D) ${d}<br>
-        ✔ ${correct}<br><i>${exp}</i><hr>`;
+        html += `<b>${i + 1}. ${q.q}</b><br>
+        A) ${q.a}<br>B) ${q.b}<br>C) ${q.c}<br>D) ${q.d}<br>
+        ✔ ${q.correct}<br><i>${q.exp}</i><hr>`;
       });
     }
     if (data.one_liner.length) {
       html += `<b>📌 One-Liner (${data.one_liner.length})</b><hr>`;
       data.one_liner.forEach((q, i) => {
-        html += `${i + 1}. ${q.q || q.question || "❓ (डेटा अनुपलब्ध)"}<hr>`;
+        html += `${i + 1}. ${q.q}<hr>`;
       });
     }
     qList.innerHTML = html;
   }
 
   qList.classList.toggle("hidden");
-}
-
-/*****************************************************
- * 🔹 Delete Selected Questions Logic
- *****************************************************/
-function deleteSelectedQuestions() {
-  const subject = document.getElementById("subject").value;
-  const subtopic = document.getElementById("subtopic").value;
-
-  if (!subject || !subtopic) {
-    alert("⚠️ कृपया विषय और उपविषय चुनें जिनके प्रश्न हटाने हैं।");
-    return;
-  }
-
-  const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
-  const topicData = saved?.[subject]?.[subtopic];
-
-  if (!topicData || (!topicData.mcq.length && !topicData.one_liner.length)) {
-    alert("⚠️ कोई प्रश्न उपलब्ध नहीं हैं।");
-    return;
-  }
-
-  // View Questions Popup
-  let html = `<h3>❓ प्रश्न चुनें जिन्हें हटाना है:</h3>`;
-  html += `<div style="max-height:300px; overflow-y:auto; text-align:left;">`;
-
-  topicData.mcq.forEach((q, i) => {
-    const question = q.q || q.question || `MCQ ${i + 1}`;
-    html += `<label style="display:block; margin:6px;">
-      <input type="checkbox" name="delQ" value="mcq-${i}"> ${question}
-    </label>`;
-  });
-
-  topicData.one_liner.forEach((q, i) => {
-    const question = q.q || q.question || `One-Liner ${i + 1}`;
-    html += `<label style="display:block; margin:6px;">
-      <input type="checkbox" name="delQ" value="one-${i}"> ${question}
-    </label>`;
-  });
-
-  html += `</div><br><button id="confirmDelBtn">🗑️ चयनित प्रश्न हटाएँ</button>`;
-  const box = document.createElement("div");
-  box.innerHTML = html;
-  box.style.position = "fixed";
-  box.style.left = "50%";
-  box.style.top = "50%";
-  box.style.transform = "translate(-50%, -50%)";
-  box.style.background = "#fff";
-  box.style.border = "2px solid #8b2d2d";
-  box.style.borderRadius = "10px";
-  box.style.padding = "20px";
-  box.style.zIndex = "9999";
-  box.style.width = "400px";
-  box.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
-  document.body.appendChild(box);
-
-  document.getElementById("confirmDelBtn").onclick = () => {
-    const checked = Array.from(document.querySelectorAll('input[name="delQ"]:checked'));
-    if (checked.length === 0) {
-      alert("⚠️ कृपया कम से कम एक प्रश्न चुनें!");
-      return;
-    }
-
-    checked.forEach(c => {
-      const [type, index] = c.value.split("-");
-      if (type === "mcq") topicData.mcq.splice(index, 1);
-      else topicData.one_liner.splice(index, 1);
-    });
-
-    localStorage.setItem("anjaliTempData", JSON.stringify(saved));
-    alert("✅ चयनित प्रश्न हटा दिए गए!");
-    box.remove();
-  };
 }
 
 /*****************************************************
@@ -295,9 +285,11 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   document.querySelector(".container").appendChild(tokenBox);
 
+  // ✅ Delete बटन एक्टिवेशन
   const delBtn = document.getElementById("deleteBtn");
   if (delBtn) delBtn.addEventListener("click", deleteSelectedQuestions);
 
+  // ✅ View Questions बटन एक्टिवेशन
   const viewBtn = document.getElementById("viewBtn");
   if (viewBtn) viewBtn.addEventListener("click", viewQuestions);
 });
