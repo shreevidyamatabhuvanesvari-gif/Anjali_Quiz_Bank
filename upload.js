@@ -1,7 +1,7 @@
 /*****************************************************
  * 📘 Anjali Quiz Bank – upload.js
  * Control Panel → GitHub JSON Auto Merge System
- * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter + Delete Confirmation Box
+ * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter + Delete Confirmation Box + View Questions
  *****************************************************/
 
 // 🔹 अपनी जानकारी यहाँ डालें
@@ -189,15 +189,12 @@ function deleteSelectedQuestions() {
     return;
   }
 
-  // Confirm Box के संदेश को अपडेट करो
   document.getElementById("confirmMessage").textContent =
     `"${subject}" → "${subtopic}" के सभी प्रश्न हटाने हैं?`;
 
-  // Box दिखाओ
   const confirmBox = document.getElementById("confirmBox");
   confirmBox.classList.remove("hidden");
 
-  // Event हैंडलर
   const yesBtn = document.getElementById("confirmYes");
   const noBtn = document.getElementById("confirmNo");
 
@@ -217,6 +214,46 @@ function deleteSelectedQuestions() {
   noBtn.onclick = () => {
     confirmBox.classList.add("hidden");
   };
+}
+
+/*****************************************************
+ * 🔹 View Questions Logic
+ *****************************************************/
+function viewQuestions() {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+  const qList = document.getElementById("questionList");
+
+  if (!subject || !subtopic) {
+    alert("⚠️ कृपया पहले विषय और उपविषय चुनें।");
+    return;
+  }
+
+  const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+  const data = saved[subject]?.[subtopic];
+
+  if (!data || (!data.mcq.length && !data.one_liner.length)) {
+    qList.innerHTML = "<i>❌ कोई प्रश्न सेव नहीं हैं।</i>";
+  } else {
+    let html = "";
+    if (data.mcq.length) {
+      html += `<b>📘 MCQ (${data.mcq.length})</b><hr>`;
+      data.mcq.forEach((q, i) => {
+        html += `<b>${i + 1}. ${q.q}</b><br>
+        A) ${q.a}<br>B) ${q.b}<br>C) ${q.c}<br>D) ${q.d}<br>
+        ✔ ${q.correct}<br><i>${q.exp}</i><hr>`;
+      });
+    }
+    if (data.one_liner.length) {
+      html += `<b>📌 One-Liner (${data.one_liner.length})</b><hr>`;
+      data.one_liner.forEach((q, i) => {
+        html += `${i + 1}. ${q.q}<hr>`;
+      });
+    }
+    qList.innerHTML = html;
+  }
+
+  qList.classList.toggle("hidden");
 }
 
 /*****************************************************
@@ -251,4 +288,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✅ Delete बटन एक्टिवेशन
   const delBtn = document.getElementById("deleteBtn");
   if (delBtn) delBtn.addEventListener("click", deleteSelectedQuestions);
+
+  // ✅ View Questions बटन एक्टिवेशन
+  const viewBtn = document.getElementById("viewBtn");
+  if (viewBtn) viewBtn.addEventListener("click", viewQuestions);
 });
