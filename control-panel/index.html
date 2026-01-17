@@ -7,9 +7,6 @@
 
   <!-- ✅ External Stylesheet -->
   <link rel="stylesheet" href="styles.css">
-
-  <!-- ✅ Final upload.js Linked (Executed after HTML load) -->
-  <script defer src="upload.js"></script>
 </head>
 
 <body>
@@ -18,17 +15,13 @@
     📘 Anjali Quiz Bank – Control Panel
   </header>
 
-  <!-- 🔹 Main Control Container -->
+  <!-- 🔹 Main Container -->
   <div class="container">
 
     <!-- विषय चयन -->
     <label for="subject">विषय चुनें:</label>
     <select id="subject">
       <option value="">-- विषय चुनें --</option>
-      <option value="General Knowledge">General Knowledge</option>
-      <option value="General Hindi">General Hindi</option>
-      <option value="Numerical & Mental Ability">Numerical & Mental Ability</option>
-      <option value="Mental Aptitude / Reasoning">Mental Aptitude / Reasoning</option>
     </select>
 
     <!-- उप-विषय चयन -->
@@ -37,21 +30,21 @@
       <option value="">-- उप-विषय चुनें --</option>
     </select>
 
-    <!-- प्रश्न का प्रकार -->
+    <!-- प्रश्न प्रकार -->
     <label for="type">प्रश्न का प्रकार:</label>
     <select id="type">
       <option value="mcq">📘 MCQ (बहुविकल्पीय प्रश्न)</option>
-      <option value="one-liner">📌 One-Liner</option>
+      <option value="one-liner">📌 One-Liner (एक पंक्ति प्रश्न)</option>
     </select>
 
-    <!-- प्रश्न इनपुट क्षेत्र -->
+    <!-- प्रश्न इनपुट -->
     <label for="questionData">प्रश्न दर्ज करें:</label>
-    <textarea id="questionData" rows="9" placeholder="Q) मोहनजोदड़ो किस नदी के किनारे स्थित था?
+    <textarea id="questionData" rows="9" placeholder="Q: मोहनजोदड़ो किस नदी के किनारे स्थित था?
 A) गंगा
 B) यमुना
 C) सिंधु
 D) सरस्वती
-Answer: C
+Ans: C
 Exp: मोहनजोदड़ो सिंधु नदी के तट पर स्थित था।"></textarea>
 
     <!-- बटन समूह -->
@@ -75,5 +68,64 @@ Exp: मोहनजोदड़ो सिंधु नदी के तट प�
     © 2026 Anjali Quiz Bank | Control Panel
   </footer>
 
+  <!-- ✅ उप-विषय Auto Load System -->
+  <script>
+    /*****************************************************
+     * 🔹 विषयों और उपविषयों को ऑटो लोड करने वाला सिस्टम
+     *****************************************************/
+    const dataFiles = [
+      "../data/general_knowledge.json",
+      "../data/general_hindi.json",
+      "../data/numerical_ability.json",
+      "../data/reasoning.json"
+    ];
+
+    const allData = {};
+
+    async function loadAllSubjects() {
+      for (let file of dataFiles) {
+        try {
+          const res = await fetch(file);
+          const json = await res.json();
+          allData[json.subject] = json.subtopics;
+        } catch (e) {
+          console.warn("⚠️ डेटा लोड करने में समस्या:", file, e);
+        }
+      }
+      populateSubjects();
+    }
+
+    // Dropdown Elements
+    const subjectSelect = document.getElementById("subject");
+    const subtopicSelect = document.getElementById("subtopic");
+
+    // विषय भरना
+    function populateSubjects() {
+      subjectSelect.innerHTML = `<option value="">-- विषय चुनें --</option>`;
+      Object.keys(allData).forEach(subject => {
+        const opt = document.createElement("option");
+        opt.value = subject;
+        opt.textContent = subject;
+        subjectSelect.appendChild(opt);
+      });
+    }
+
+    // विषय बदलने पर उपविषय बदलना
+    subjectSelect.addEventListener("change", () => {
+      const subs = allData[subjectSelect.value] || {};
+      subtopicSelect.innerHTML = `<option value="">-- उप-विषय चुनें --</option>`;
+      Object.keys(subs).forEach(st => {
+        const opt = document.createElement("option");
+        opt.value = st;
+        opt.textContent = st;
+        subtopicSelect.appendChild(opt);
+      });
+    });
+
+    window.addEventListener("DOMContentLoaded", loadAllSubjects);
+  </script>
+
+  <!-- ✅ Final upload.js -->
+  <script defer src="upload.js"></script>
 </body>
 </html>
