@@ -4,39 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📘 Anjali Quiz Bank – Control Panel</title>
+
+  <!-- ✅ External Stylesheet -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- ✅ Final upload.js Linked (Executed after HTML load) -->
   <script defer src="upload.js"></script>
 </head>
 
 <body>
-  <header>📘 Anjali Quiz Bank – Control Panel</header>
+  <!-- 🔹 Header -->
+  <header>
+    📘 Anjali Quiz Bank – Control Panel
+  </header>
 
+  <!-- 🔹 Main Control Container -->
   <div class="container">
+
+    <!-- विषय चयन -->
     <label for="subject">विषय चुनें:</label>
     <select id="subject">
       <option value="">-- विषय चुनें --</option>
+      <option value="General Knowledge">General Knowledge</option>
+      <option value="General Hindi">General Hindi</option>
+      <option value="Numerical & Mental Ability">Numerical & Mental Ability</option>
+      <option value="Mental Aptitude / Reasoning">Mental Aptitude / Reasoning</option>
     </select>
 
+    <!-- उप-विषय चयन -->
     <label for="subtopic">उप-विषय चुनें:</label>
     <select id="subtopic">
       <option value="">-- उप-विषय चुनें --</option>
     </select>
 
+    <!-- प्रश्न का प्रकार -->
     <label for="type">प्रश्न का प्रकार:</label>
     <select id="type">
       <option value="mcq">📘 MCQ (बहुविकल्पीय प्रश्न)</option>
       <option value="one-liner">📌 One-Liner</option>
     </select>
 
+    <!-- प्रश्न इनपुट क्षेत्र -->
     <label for="questionData">प्रश्न दर्ज करें:</label>
-    <textarea id="questionData" placeholder="Q) भारत की राजधानी क्या है?
-A) दिल्ली
-B) मुंबई
-C) कोलकाता
-D) चेन्नई
-Answer: A
-Exp: दिल्ली भारत की राजधानी है।"></textarea>
+    <textarea id="questionData" rows="9" placeholder="Q) मोहनजोदड़ो किस नदी के किनारे स्थित था?
+A) गंगा
+B) यमुना
+C) सिंधु
+D) सरस्वती
+Answer: C
+Exp: मोहनजोदड़ो सिंधु नदी के तट पर स्थित था।"></textarea>
 
+    <!-- बटन समूह -->
     <div class="btn-group">
       <button id="saveBtn">💾 प्रश्न सेव करें</button>
       <button id="viewBtn">📄 प्रश्न देखें</button>
@@ -44,12 +62,18 @@ Exp: दिल्ली भारत की राजधानी है।"></t
       <button id="uploadBtn" class="success">⬆️ Upload to GitHub</button>
     </div>
 
+    <!-- प्रश्न सूची -->
     <div id="questionList" class="hidden box"></div>
 
+    <!-- Token Input -->
     <input type="password" id="tokenBox" placeholder="🔑 यदि Token है, यहाँ लिखें (optional)" />
+
   </div>
 
-  <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
-  <script defer src="upload.js"></script>
+  <!-- 🔹 Footer -->
+  <footer>
+    © 2026 Anjali Quiz Bank | Control Panel
+  </footer>
+
 </body>
 </html>
