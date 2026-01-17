@@ -1,22 +1,19 @@
 /*****************************************************
- * 📘 Anjali Quiz Bank – upload.js (Final Stable Build)
- * ✅ बिना Token भी कार्यरत + Token वैकल्पिक
- * ✅ View Questions Fixed (No undefined)
- * ✅ Selective Delete (Checkbox Based)
- * ✅ Request Counter Auto Reset
+ * 📘 Anjali Quiz Bank – upload.js (Final Tested Version)
+ * ✅ Smart Parser + Request Counter Reset + Working Delete/View
  *****************************************************/
 
 // 🔹 अपनी जानकारी यहाँ डालें
 const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";
 const GITHUB_REPO = "Anjali_Quiz_Bank";
 const GITHUB_BRANCH = "main";
-let GITHUB_TOKEN = "";
+let GITHUB_TOKEN = ""; // वैकल्पिक
 
-// 🔹 Repo में JSON का Base Path
+// 🔹 Repo JSON Base Path
 const DATA_PATH = "data/";
 
 /*****************************************************
- * 🔹 Request Counter System
+ * 🔹 Request Counter (Auto Reset every hour)
  *****************************************************/
 const REQUEST_LIMIT = 60;
 let requestCount = parseInt(localStorage.getItem("anjali_request_count") || "0");
@@ -44,22 +41,171 @@ function initRequestCounter() {
   counter.style.borderRadius = "8px";
   counter.style.padding = "8px 12px";
   counter.style.fontSize = "14px";
+  counter.style.boxShadow = "0 0 6px rgba(0,0,0,0.1)";
   counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
   document.body.appendChild(counter);
 }
 
+function updateRequestCounter() {
+  requestCount++;
+  localStorage.setItem("anjali_request_count", requestCount.toString());
+  const counter = document.getElementById("requestCounter");
+  if (counter)
+    counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
+}
+
 /*****************************************************
- * 🔹 View Questions (Fixed undefined issue)
+ * 🔹 लोकल डेटा लोड करना
+ *****************************************************/
+async function getLocalData() {
+  const data = localStorage.getItem("anjaliTempData");
+  if (!data) {
+    alert("⚠️ कोई नया प्रश्न डेटा नहीं मिला!");
+    return null;
+  }
+  return JSON.parse(data);
+}
+
+/*****************************************************
+ * 🔹 Smart Parser (MCQ Input)
+ *****************************************************/
+function parseMCQInput(text) {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const questions = [];
+  let q = {};
+
+  lines.forEach(line => {
+    if (line.match(/^Q[\):]/i)) {
+      q.q = line.replace(/^Q[\):]/i, "").trim();
+    } else if (line.match(/^A[\):]/i)) {
+      q.a = line.replace(/^A[\):]/i, "").trim();
+    } else if (line.match(/^B[\):]/i)) {
+      q.b = line.replace(/^B[\):]/i, "").trim();
+    } else if (line.match(/^C[\):]/i)) {
+      q.c = line.replace(/^C[\):]/i, "").trim();
+    } else if (line.match(/^D[\):]/i)) {
+      q.d = line.replace(/^D[\):]/i, "").trim();
+    } else if (line.match(/^Answer[\):]/i) || line.match(/^Ans[\):]/i)) {
+      q.correct = line.replace(/^Answer[\):]/i, "").replace(/^Ans[\):]/i, "").trim();
+    } else if (line.match(/^Exp[\):]/i) || line.match(/^Explanation[\):]/i)) {
+      q.exp = line.replace(/^Exp[\):]/i, "").replace(/^Explanation[\):]/i, "").trim();
+      questions.push(q);
+      q = {};
+    }
+  });
+
+  return questions;
+}
+
+/*****************************************************
+ * 🔹 Fetch from GitHub
+ *****************************************************/
+async function fetchFromGitHub(fileName) {
+  updateRequestCounter();
+
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
+  const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
+
+  const res = await fetch(url, { headers });
+  if (res.status === 404) return { content: {}, sha: null };
+  const json = await res.json();
+  const decoded = atob(json.content);
+  return { content: JSON.parse(decoded), sha: json.sha };
+}
+
+/*****************************************************
+ * 🔹 Merge Local + Remote
+ *****************************************************/
+function mergeData(remoteData, localData, subjectName) {
+  const updated = remoteData || { subject: subjectName, subtopics: {} };
+
+  for (const sub in localData[subjectName]) {
+    const subData = localData[subjectName][sub];
+    if (!updated.subtopics[sub]) updated.subtopics[sub] = { mcq: [], one_liner: [] };
+
+    updated.subtopics[sub].mcq.push(...subData.mcq);
+    updated.subtopics[sub].one_liner.push(...subData.one_liner);
+  }
+
+  return updated;
+}
+
+/*****************************************************
+ * 🔹 Upload to GitHub
+ *****************************************************/
+async function uploadToGitHub(fileName, data, sha = null) {
+  updateRequestCounter();
+
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
+  const headers = { "Content-Type": "application/json" };
+  if (GITHUB_TOKEN) headers["Authorization"] = `token ${GITHUB_TOKEN}`;
+
+  const message = `📤 Updated ${fileName} from Anjali Control Panel`;
+  const content = btoa(JSON.stringify(data, null, 2));
+  const payload = { message, content, branch: GITHUB_BRANCH, sha };
+
+  const res = await fetch(url, { method: "PUT", headers, body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error(await res.text());
+  console.log(`✅ ${fileName} सफलतापूर्वक अपलोड हुआ!`);
+}
+
+/*****************************************************
+ * 🔹 Upload All
+ *****************************************************/
+async function uploadAll() {
+  const localData = await getLocalData();
+  if (!localData) return;
+
+  const fileMap = {
+    "General Knowledge": "general_knowledge.json",
+    "General Hindi": "general_hindi.json",
+    "Numerical & Mental Ability": "numerical_ability.json",
+    "Mental Aptitude / Reasoning": "reasoning.json",
+  };
+
+  for (const subjectName in localData) {
+    const fileName = fileMap[subjectName];
+    if (!fileName) continue;
+
+    const { content, sha } = await fetchFromGitHub(fileName);
+    const merged = mergeData(content, localData, subjectName);
+    await uploadToGitHub(fileName, merged, sha);
+  }
+
+  alert("✅ सभी प्रश्न GitHub पर सफलतापूर्वक अपलोड किए गए!");
+  localStorage.removeItem("anjaliTempData");
+}
+
+/*****************************************************
+ * 🔹 Delete Logic
+ *****************************************************/
+function deleteSelectedQuestions() {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+
+  if (!subject || !subtopic) return alert("⚠️ कृपया विषय और उप-विषय चुनें।");
+
+  if (confirm(`"${subject}" → "${subtopic}" के सभी प्रश्न हटाने हैं?`)) {
+    const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+    if (saved[subject]?.[subtopic]) {
+      saved[subject][subtopic] = { mcq: [], one_liner: [] };
+      localStorage.setItem("anjaliTempData", JSON.stringify(saved));
+      alert(`🗑️ "${subject}" → "${subtopic}" के प्रश्न हटा दिए गए हैं।`);
+    } else {
+      alert("⚠️ कोई प्रश्न नहीं मिला।");
+    }
+  }
+}
+
+/*****************************************************
+ * 🔹 View Questions
  *****************************************************/
 function viewQuestions() {
   const subject = document.getElementById("subject").value;
   const subtopic = document.getElementById("subtopic").value;
   const qList = document.getElementById("questionList");
 
-  if (!subject || !subtopic) {
-    alert("⚠️ कृपया पहले विषय और उपविषय चुनें।");
-    return;
-  }
+  if (!subject || !subtopic) return alert("⚠️ कृपया पहले विषय और उपविषय चुनें।");
 
   const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
   const data = saved[subject]?.[subtopic];
@@ -70,105 +216,24 @@ function viewQuestions() {
   }
 
   let html = "";
-
-  if (data.mcq.length > 0) {
-    html += `<h3>📘 MCQ (${data.mcq.length})</h3>`;
+  if (data.mcq.length) {
+    html += `<b>📘 MCQ (${data.mcq.length})</b><hr>`;
     data.mcq.forEach((q, i) => {
-      const ques = q.q || q.question || "(प्रश्न अनुपलब्ध)";
-      const a = q.a || q.options?.A || "(A विकल्प नहीं)";
-      const b = q.b || q.options?.B || "(B विकल्प नहीं)";
-      const c = q.c || q.options?.C || "(C विकल्प नहीं)";
-      const d = q.d || q.options?.D || "(D विकल्प नहीं)";
-      const correct = q.correct || q.answer || "(उत्तर नहीं)";
-      const exp = q.exp || q.explanation || "(व्याख्या अनुपलब्ध)";
-      html += `
-        <div class="qbox">
-          <b>${i + 1}. ${ques}</b><br>
-          A) ${a}<br>B) ${b}<br>C) ${c}<br>D) ${d}<br>
-          ✔ उत्तर: ${correct}<br>
-          <i>${exp}</i>
-        </div><hr>`;
+      html += `<b>${i + 1}. ${q.q || "(प्रश्न अनुपलब्ध)"}</b><br>
+      A) ${q.a || "-"}<br>B) ${q.b || "-"}<br>C) ${q.c || "-"}<br>D) ${q.d || "-"}<br>
+      ✔ उत्तर: ${q.correct || "(उत्तर अनुपलब्ध)"}<br><i>${q.exp || ""}</i><hr>`;
     });
   }
 
-  if (data.one_liner.length > 0) {
-    html += `<h3>📌 One-Liner (${data.one_liner.length})</h3>`;
-    data.one_liner.forEach((o, i) => {
-      html += `<div>${i + 1}. ${o.q || o.question || "(डेटा नहीं)"}</div><hr>`;
+  if (data.one_liner.length) {
+    html += `<b>📌 One-Liner (${data.one_liner.length})</b><hr>`;
+    data.one_liner.forEach((q, i) => {
+      html += `${i + 1}. ${q.q || "(प्रश्न अनुपलब्ध)"}<hr>`;
     });
   }
 
   qList.innerHTML = html;
-  qList.classList.remove("hidden");
-}
-
-/*****************************************************
- * 🔹 Delete Selected Questions (Checkbox-based)
- *****************************************************/
-function deleteSelectedQuestions() {
-  const subject = document.getElementById("subject").value;
-  const subtopic = document.getElementById("subtopic").value;
-
-  if (!subject || !subtopic) {
-    alert("⚠️ कृपया विषय और उपविषय चुनें।");
-    return;
-  }
-
-  const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
-  const topicData = saved?.[subject]?.[subtopic];
-
-  if (!topicData || (!topicData.mcq.length && !topicData.one_liner.length)) {
-    alert("⚠️ कोई प्रश्न उपलब्ध नहीं हैं।");
-    return;
-  }
-
-  // ✅ Delete Popup बनाओ
-  let html = `<h3>🗑️ हटाने के लिए प्रश्न चुनें:</h3><div style="max-height:300px; overflow-y:auto;">`;
-
-  topicData.mcq.forEach((q, i) => {
-    const ques = q.q || q.question || `MCQ ${i + 1}`;
-    html += `<label><input type="checkbox" name="delQ" value="mcq-${i}"> ${ques}</label><br>`;
-  });
-
-  topicData.one_liner.forEach((q, i) => {
-    const ques = q.q || q.question || `One-liner ${i + 1}`;
-    html += `<label><input type="checkbox" name="delQ" value="one-${i}"> ${ques}</label><br>`;
-  });
-
-  html += `</div><br><button id="confirmDelBtn">✅ चयनित हटाएँ</button>`;
-
-  const box = document.createElement("div");
-  box.innerHTML = html;
-  box.style.position = "fixed";
-  box.style.left = "50%";
-  box.style.top = "50%";
-  box.style.transform = "translate(-50%, -50%)";
-  box.style.background = "#fff";
-  box.style.border = "2px solid #8b2d2d";
-  box.style.borderRadius = "10px";
-  box.style.padding = "20px";
-  box.style.width = "400px";
-  box.style.zIndex = "9999";
-  box.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
-  document.body.appendChild(box);
-
-  document.getElementById("confirmDelBtn").onclick = () => {
-    const checked = Array.from(document.querySelectorAll('input[name="delQ"]:checked'));
-    if (checked.length === 0) {
-      alert("⚠️ कृपया कम से कम एक प्रश्न चुनें!");
-      return;
-    }
-
-    checked.forEach((c) => {
-      const [type, idx] = c.value.split("-");
-      if (type === "mcq") topicData.mcq.splice(idx, 1);
-      else topicData.one_liner.splice(idx, 1);
-    });
-
-    localStorage.setItem("anjaliTempData", JSON.stringify(saved));
-    alert("✅ चयनित प्रश्न हटा दिए गए!");
-    box.remove();
-  };
+  qList.classList.toggle("hidden");
 }
 
 /*****************************************************
@@ -177,9 +242,32 @@ function deleteSelectedQuestions() {
 document.addEventListener("DOMContentLoaded", () => {
   initRequestCounter();
 
-  const viewBtn = document.getElementById("viewBtn");
-  const delBtn = document.getElementById("deleteBtn");
+  const uploadBtn = document.createElement("button");
+  uploadBtn.textContent = "⬆️ Upload to GitHub";
+  uploadBtn.style.background = "#2d6a4f";
+  uploadBtn.style.color = "white";
+  uploadBtn.style.fontWeight = "bold";
+  uploadBtn.style.marginTop = "12px";
+  uploadBtn.onclick = uploadAll;
+  document.querySelector(".container").appendChild(uploadBtn);
 
-  if (viewBtn) viewBtn.addEventListener("click", viewQuestions);
+  const tokenBox = document.createElement("input");
+  tokenBox.type = "password";
+  tokenBox.placeholder = "🔑 यदि Token है, यहाँ लिखें (optional)";
+  tokenBox.style.width = "100%";
+  tokenBox.style.padding = "8px";
+  tokenBox.style.marginTop = "10px";
+  tokenBox.style.border = "1px solid #ccc";
+  tokenBox.style.borderRadius = "6px";
+  tokenBox.onchange = () => {
+    GITHUB_TOKEN = tokenBox.value.trim();
+    if (GITHUB_TOKEN) alert("✅ Token सेट कर दिया गया!");
+  };
+  document.querySelector(".container").appendChild(tokenBox);
+
+  const delBtn = document.getElementById("deleteBtn");
   if (delBtn) delBtn.addEventListener("click", deleteSelectedQuestions);
+
+  const viewBtn = document.getElementById("viewBtn");
+  if (viewBtn) viewBtn.addEventListener("click", viewQuestions);
 });
