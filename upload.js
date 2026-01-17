@@ -1,7 +1,7 @@
 /*****************************************************
  * 📘 Anjali Quiz Bank – upload.js
  * Control Panel → GitHub JSON Auto Merge System
- * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter
+ * ✅ बिना Token भी कार्यरत + Token वैकल्पिक + Request Counter + Delete Confirmation Box
  *****************************************************/
 
 // 🔹 अपनी जानकारी यहाँ डालें
@@ -24,7 +24,6 @@ function initRequestCounter() {
   const now = Date.now();
   const oneHour = 60 * 60 * 1000;
 
-  // हर घंटे Reset
   if (now - lastReset > oneHour) {
     requestCount = 0;
     lastReset = now;
@@ -178,7 +177,9 @@ async function uploadAll() {
   localStorage.removeItem("anjaliTempData");
 }
 
-// ✅ नया Custom Delete Function
+/*****************************************************
+ * 🔹 Custom Delete Confirmation Logic
+ *****************************************************/
 function deleteSelectedQuestions() {
   const subject = document.getElementById("subject").value;
   const subtopic = document.getElementById("subtopic").value;
@@ -200,10 +201,6 @@ function deleteSelectedQuestions() {
   const yesBtn = document.getElementById("confirmYes");
   const noBtn = document.getElementById("confirmNo");
 
-  // पहले पुराने इवेंट हटाओ (दोहराव रोकने के लिए)
-  yesBtn.onclick = null;
-  noBtn.onclick = null;
-
   yesBtn.onclick = () => {
     confirmBox.classList.add("hidden");
 
@@ -223,7 +220,7 @@ function deleteSelectedQuestions() {
 }
 
 /*****************************************************
- * 🔹 Control Panel से Trigger बटन और Token Box
+ * 🔹 Control Panel Initialization
  *****************************************************/
 document.addEventListener("DOMContentLoaded", () => {
   initRequestCounter();
@@ -250,9 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (GITHUB_TOKEN) alert("✅ Token सेट कर दिया गया!");
   };
   document.querySelector(".container").appendChild(tokenBox);
-});
 
-// नया Delete बटन एक्टिवेशन
+  // ✅ Delete बटन एक्टिवेशन
   const delBtn = document.getElementById("deleteBtn");
   if (delBtn) delBtn.addEventListener("click", deleteSelectedQuestions);
 });
