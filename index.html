@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📚 Anjali Quiz Bank – Home</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", system-ui, sans-serif;
+      background: linear-gradient(135deg, #fef6f6, #fff);
+      color: #333;
+      text-align: center;
+    }
+
+    header {
+      background: #8b2d2d;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    main {
+      margin-top: 80px;
+    }
+
+    h2 {
+      font-size: 26px;
+      color: #8b2d2d;
+    }
+
+    p {
+      color: #444;
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      display: inline-block;
+      margin: 15px;
+      padding: 14px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: white;
+      background: #8b2d2d;
+      transition: all 0.3s ease;
+    }
+
+    .button:hover {
+      background: #a33a3a;
+      transform: scale(1.05);
+    }
+
+    footer {
+      margin-top: 80px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    .anjali {
+      animation: fadeIn 1.5s ease-in-out;
+      font-style: italic;
+      color: #8b2d2d;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <header>📚 Anjali Quiz Bank</header>
+
+  <main>
+    <h2>नमस्ते! 👋</h2>
+    <p class="anjali" id="anjaliGreeting">अंजली कहती है — “Anjali Quiz Bank में आपका स्वागत है।”</p>
+
+    <button class="button" onclick="goToStudent()">🎓 Student Panel खोलें</button>
+    <button class="button" onclick="goToAdmin()">⚙️ Control Panel खोलें</button>
+  </main>
+
+  <footer>© 2026 Anjali Quiz Bank | Designed with ❤️ by You</footer>
+
+  <script>
+    // 🔹 Student Panel
+    function goToStudent() {
+      window.location.href = "student-panel/index.html";
+    }
+
+    // 🔹 Control Panel
+    function goToAdmin() {
+      window.location.href = "control-panel/index.html";
+    }
+
+    // 🔹 अंजली की मधुर आवाज़ में स्वागत
+    window.addEventListener("DOMContentLoaded", () => {
+      const message = "नमस्ते, आपका स्वागत है — अंजली क्विज़ बैंक में!";
+      const synth = window.speechSynthesis;
+      const voiceCheck = setInterval(() => {
+        const voices = synth.getVoices();
+        if (voices.length > 0) {
+          clearInterval(voiceCheck);
+          let femaleVoice = voices.find(v =>
+            v.lang.startsWith("hi") || v.name.toLowerCase().includes("female") || v.name.includes("Google हिन्दी")
+          );
+
+          const utter = new SpeechSynthesisUtterance(message);
+          utter.pitch = 1.1;
+          utter.rate = 0.9;
+          utter.volume = 1;
+          utter.voice = femaleVoice || voices[0];
+          synth.speak(utter);
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>
