@@ -25,18 +25,28 @@
     }
 
     main {
-      margin-top: 80px;
+      margin-top: 60px;
+      padding: 0 20px;
     }
 
-    h2 {
-      font-size: 26px;
-      color: #8b2d2d;
-    }
-
-    p {
-      color: #444;
+    .motivation {
+      max-width: 700px;
+      margin: 0 auto 40px auto;
+      background: #fff3f3;
+      border-left: 6px solid #8b2d2d;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      line-height: 1.6;
+      color: #5a2a2a;
       font-size: 18px;
-      margin-bottom: 40px;
+      text-align: justify;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .button {
@@ -85,8 +95,17 @@
   <header>📚 Anjali Quiz Bank</header>
 
   <main>
-    <h2>नमस्ते! 👋</h2>
-    <p id="anjaliVoice">अंजली कहती है — “Anjali Quiz Bank में आपका स्वागत है।”</p>
+    <div class="motivation" id="motivationText">
+      “नमस्ते, मैं अंजली हूँ — आपकी अध्ययन साथी।  
+      जब मन में विश्वास होता है, तो कोई भी लक्ष्य दूर नहीं रहता।  
+      याद रखो — ‘मन के हारे हार है, मन के जीते जीत।’  
+      हर प्रश्न, हर प्रयास तुम्हें मंज़िल के एक कदम और करीब लाता है।  
+      गलती करना कमजोरी नहीं, बल्कि सीखने का सबसे बड़ा अवसर है।  
+      आज का दिन नया है, नई शुरुआत का —  
+      खुद पर भरोसा रखो, क्योंकि तुम वही कर सकते हो जो तुम सोचते हो।  
+      चलो, मुस्कुराओ और आत्मविश्वास के साथ आगे बढ़ो।  
+      ज्ञान ही शक्ति है... और यह शक्ति अब तुम्हारे साथ है।” 🌺
+    </div>
 
     <button class="button" onclick="goToStudent()">🎓 Student Panel</button>
     <button class="button" onclick="showPasswordBox()">⚙️ Control Panel</button>
@@ -105,15 +124,15 @@
 
   <script>
     /*****************************************************
-     * 🎤 अंजली की आवाज़
+     * 🎤 अंजली की प्रेरणादायक आवाज़
      *****************************************************/
     function speak(text) {
       const synth = window.speechSynthesis;
       const speakNow = () => {
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = "hi-IN";
-        utter.pitch = 1.1;
-        utter.rate = 0.95;
+        utter.pitch = 1.05;
+        utter.rate = 0.9;
         utter.volume = 1;
         const voices = synth.getVoices();
         const femaleVoice = voices.find(v =>
@@ -142,17 +161,11 @@
       return savedHash === inputHash;
     }
 
-    /*****************************************************
-     * 🎓 Student Panel
-     *****************************************************/
     function goToStudent() {
-      speak("स्टूडेंट पैनल खोला जा रहा है।");
+      speak("बहुत बढ़िया! स्टूडेंट पैनल खोला जा रहा है।");
       window.location.href = "student-panel/index.html";
     }
 
-    /*****************************************************
-     * ⚙️ Control Panel Access (Password Protected)
-     *****************************************************/
     const passwordBox = document.getElementById("passwordBox");
     const passwordInput = document.getElementById("passwordInput");
     const passwordPrompt = document.getElementById("passwordPrompt");
@@ -217,11 +230,12 @@
     };
 
     /*****************************************************
-     * 🌸 वॉयस वेलकम – क्लिक के साथ स्वतः चालू
+     * 🌸 वॉयस वेलकम – क्लिक के साथ स्वतः सक्रिय
      *****************************************************/
     window.addEventListener("DOMContentLoaded", () => {
+      const motivation = document.getElementById("motivationText").innerText;
       function startVoiceOnce() {
-        speak("नमस्ते, अंजली क्विज़ बैंक में आपका स्वागत है।");
+        speak(motivation);
         document.removeEventListener("click", startVoiceOnce);
       }
       document.addEventListener("click", startVoiceOnce);
