@@ -4,8 +4,9 @@ let currentMode = "";
 let selectedSubject = "";
 let selectedSubtopic = "";
 
-// 🔊 अंजली की आवाज़ (Voice Engine)
+// 🔊 अंजली की आवाज़
 function speak(text) {
+  if (!text) return;
   const synth = window.speechSynthesis;
   const speakNow = () => {
     const voices = synth.getVoices();
@@ -16,12 +17,16 @@ function speak(text) {
     utter.pitch = 1.1;
     synth.speak(utter);
   };
-  if (synth.getVoices().length === 0) {
-    synth.onvoiceschanged = speakNow;
-  } else speakNow();
+  if (synth.getVoices().length === 0) synth.onvoiceschanged = speakNow;
+  else speakNow();
 }
 
-// 🔹 पेज लोड होते ही
+// 🔊 “सुनकर पढ़ें” बटन — उपयोगकर्ता की अनुमति से वॉयस चालू
+function forceSpeak() {
+  speak("नमस्ते विद्यार्थी, अब मैं आपको सुनकर पढ़ाऊंगी। बताइए कौन सा विषय पढ़ना चाहेंगे?");
+}
+
+// 🔹 पेज लोड पर
 window.addEventListener("DOMContentLoaded", () => {
   speak("नमस्ते विद्यार्थी, मैं अंजली हूँ। बताइए, कौन सा विषय पढ़ना चाहेंगे?");
   loadSubjects();
@@ -70,7 +75,6 @@ function loadSubtopics() {
       });
 
       document.querySelectorAll(".modeBtn").forEach(btn => btn.classList.add("hidden"));
-
       if (subject === "General Knowledge") {
         document.getElementById("studyBtn").classList.remove("hidden");
         document.getElementById("quizBtn").classList.remove("hidden");
@@ -87,30 +91,25 @@ function loadSubtopics() {
 
 // 🔹 Study Mode
 function startStudy() {
-  selectedSubject = document.getElementById("subject").value;
-  selectedSubtopic = document.getElementById("subtopic").value;
-  if (!selectedSubtopic) return alert("कृपया उपविषय चुनें!");
-  currentMode = "study";
-  currentIndex = 0;
-  showQuestion();
+  prepareMode("study");
 }
 
 // 🔹 Quiz Mode
 function startQuiz() {
-  selectedSubject = document.getElementById("subject").value;
-  selectedSubtopic = document.getElementById("subtopic").value;
-  if (!selectedSubtopic) return alert("कृपया उपविषय चुनें!");
-  currentMode = "quiz";
-  currentIndex = 0;
-  showQuestion();
+  prepareMode("quiz");
 }
 
-// 🔹 Step-by-Step Mode (Maths/Reasoning)
+// 🔹 Step Mode
 function startStepMode() {
+  prepareMode("step");
+}
+
+// 🔹 मोड सेटअप
+function prepareMode(mode) {
   selectedSubject = document.getElementById("subject").value;
   selectedSubtopic = document.getElementById("subtopic").value;
   if (!selectedSubtopic) return alert("कृपया उपविषय चुनें!");
-  currentMode = "step";
+  currentMode = mode;
   currentIndex = 0;
   showQuestion();
 }
@@ -121,16 +120,19 @@ function showQuestion() {
   if (!subData) return;
 
   const qBox = document.getElementById("questionBox");
-  qBox.classList.remove("hidden");
   const expBox = document.getElementById("explanationText");
   const optBox = document.getElementById("optionsBox");
+  qBox.classList.remove("hidden");
   expBox.classList.add("hidden");
   optBox.classList.add("hidden");
+
+  if (currentMode === "step") qBox.classList.add("stepModeActive");
+  else qBox.classList.remove("stepModeActive");
 
   if (currentMode === "study") {
     const list = subData.one_liner;
     const item = list[currentIndex];
-    if (!item) return speak("अध्ययन समाप्त हुआ, बहुत अच्छा किया!");
+    if (!item) return speak("अध्ययन समाप्त हुआ!");
     document.getElementById("questionText").innerText = item.q;
     speak(item.q);
   }
@@ -155,11 +157,11 @@ function showQuestion() {
   if (currentMode === "step") {
     const list = subData.mcq;
     const item = list[currentIndex];
-    if (!item) return speak("अध्ययन समाप्त हुआ।");
+    if (!item) return speak("सत्र समाप्त हुआ। बहुत अच्छा!");
     document.getElementById("questionText").innerText = item.q;
-    speak(`चलिये चरणबद्ध समाधान समझते हैं। प्रश्न है — ${item.q}.`);
-    expBox.innerText = "पहला चरण: प्रश्न को ध्यान से पढ़िए। दूसरा चरण: सही विकल्प का विश्लेषण कीजिए। तीसरा चरण: उत्तर चुनिए।";
+    expBox.innerText = "🧩 चरण 1: प्रश्न को समझें\n🧮 चरण 2: सूत्र लागू करें\n✅ चरण 3: सही उत्तर चुनें।";
     expBox.classList.remove("hidden");
+    speak(`चलिये चरणबद्ध समाधान शुरू करें। प्रश्न है ${item.q}`);
   }
 
   document.getElementById("nextBtn").classList.remove("hidden");
@@ -170,9 +172,9 @@ function showQuestion() {
 function checkAnswer(selected, correct, exp) {
   const expBox = document.getElementById("explanationText");
   if (selected.toUpperCase() === correct.toUpperCase()) {
-    speak("आपका उत्तर सही है, बहुत अच्छा!");
+    speak("सही उत्तर! बहुत बढ़िया किया।");
   } else {
-    speak(`उत्तर गलत है, सही उत्तर है विकल्प ${correct}.`);
+    speak(`गलत उत्तर। सही उत्तर है विकल्प ${correct}.`);
   }
   expBox.innerText = exp || "व्याख्या उपलब्ध नहीं।";
   expBox.classList.remove("hidden");
