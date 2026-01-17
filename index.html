@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📚 Anjali Quiz Bank – Home</title>
+  <title>📚 Anjali Quiz Bank – Secure Access</title>
 
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: "Poppins", system-ui, sans-serif;
-      background: linear-gradient(135deg, #fef6f6, #fff);
+      background: linear-gradient(135deg, #fff8f8, #fdfdfd);
       color: #333;
       text-align: center;
     }
@@ -18,42 +18,50 @@
     header {
       background: #8b2d2d;
       color: white;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: bold;
-      padding: 18px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 
     main {
       margin-top: 80px;
     }
 
-    h2 {
-      font-size: 26px;
+    .anjali {
+      font-style: italic;
       color: #8b2d2d;
+      animation: fadeIn 1.5s ease-in-out;
     }
 
-    p {
-      color: #444;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input {
+      padding: 12px;
       font-size: 18px;
-      margin-bottom: 40px;
+      width: 280px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 12px;
     }
 
-    .button {
-      display: inline-block;
-      margin: 15px;
-      padding: 14px 28px;
+    button {
+      padding: 12px 26px;
       font-size: 18px;
       font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
       color: white;
       background: #8b2d2d;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
       transition: all 0.3s ease;
     }
 
-    .button:hover {
+    button:hover {
       background: #a33a3a;
       transform: scale(1.05);
     }
@@ -64,16 +72,7 @@
       color: #777;
     }
 
-    .anjali {
-      animation: fadeIn 1.5s ease-in-out;
-      font-style: italic;
-      color: #8b2d2d;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .hidden { display: none; }
   </style>
 </head>
 
@@ -81,47 +80,141 @@
   <header>📚 Anjali Quiz Bank</header>
 
   <main>
-    <h2>नमस्ते! 👋</h2>
-    <p class="anjali" id="anjaliGreeting">अंजली कहती है — “Anjali Quiz Bank में आपका स्वागत है।”</p>
+    <h2 id="welcomeText">नमस्ते! 👋</h2>
+    <p id="anjaliText" class="anjali">अंजली कहती है — “Anjali Quiz Bank में आपका स्वागत है।”</p>
 
-    <button class="button" onclick="goToStudent()">🎓 Student Panel खोलें</button>
-    <button class="button" onclick="goToAdmin()">⚙️ Control Panel खोलें</button>
+    <div id="passwordSection" class="hidden">
+      <p id="passwordPrompt">कृपया पासवर्ड दर्ज करें 🔒</p>
+      <input type="password" id="passwordInput" maxlength="10" placeholder="10 अंकों का पासवर्ड टाइप करें" />
+      <br>
+      <button id="submitPassword">जमा करें</button>
+      <br>
+      <button id="changePassword" class="hidden">🔁 पासवर्ड बदलें</button>
+    </div>
   </main>
 
   <footer>© 2026 Anjali Quiz Bank | Designed with ❤️ by You</footer>
 
   <script>
-    // 🔹 Student Panel
-    function goToStudent() {
-      window.location.href = "student-panel/index.html";
-    }
-
-    // 🔹 Control Panel
-    function goToAdmin() {
-      window.location.href = "control-panel/index.html";
-    }
-
-    // 🔹 अंजली की मधुर आवाज़ में स्वागत
-    window.addEventListener("DOMContentLoaded", () => {
-      const message = "नमस्ते, आपका स्वागत है — अंजली क्विज़ बैंक में!";
+    /****************************************************
+     * 🎤 Voice Function (अंजली की आवाज)
+     ****************************************************/
+    function speak(text) {
       const synth = window.speechSynthesis;
-      const voiceCheck = setInterval(() => {
+      const speakNow = () => {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "hi-IN";
+        utter.pitch = 1.1;
+        utter.rate = 0.95;
+        utter.volume = 1;
         const voices = synth.getVoices();
-        if (voices.length > 0) {
-          clearInterval(voiceCheck);
-          let femaleVoice = voices.find(v =>
-            v.lang.startsWith("hi") || v.name.toLowerCase().includes("female") || v.name.includes("Google हिन्दी")
-          );
+        const femaleVoice = voices.find(v =>
+          v.lang.startsWith("hi") || v.name.toLowerCase().includes("female") || v.name.includes("Google हिन्दी")
+        );
+        utter.voice = femaleVoice || voices[0];
+        synth.speak(utter);
+      };
 
-          const utter = new SpeechSynthesisUtterance(message);
-          utter.pitch = 1.1;
-          utter.rate = 0.9;
-          utter.volume = 1;
-          utter.voice = femaleVoice || voices[0];
-          synth.speak(utter);
-        }
-      }, 500);
-    });
+      if (synth.getVoices().length === 0) {
+        synth.onvoiceschanged = speakNow;
+      } else {
+        speakNow();
+      }
+    }
+
+    /****************************************************
+     * 🔐 Secure Password System (SHA-256 Hash)
+     ****************************************************/
+    async function hashPassword(password) {
+      const msgBuffer = new TextEncoder().encode(password);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function checkPassword(input) {
+      const savedHash = localStorage.getItem("anjali_password_hash");
+      const inputHash = await hashPassword(input);
+      return savedHash === inputHash;
+    }
+
+    /****************************************************
+     * 🧠 Logic
+     ****************************************************/
+    const passwordSection = document.getElementById("passwordSection");
+    const passwordPrompt = document.getElementById("passwordPrompt");
+    const passwordInput = document.getElementById("passwordInput");
+    const submitBtn = document.getElementById("submitPassword");
+    const changeBtn = document.getElementById("changePassword");
+
+    async function init() {
+      speak("नमस्ते, अंजली क्विज़ बैंक में आपका स्वागत है।");
+
+      const savedHash = localStorage.getItem("anjali_password_hash");
+
+      // पहली बार: पासवर्ड सेट करें
+      if (!savedHash) {
+        speak("कृपया अपना 10 अंकों का पासवर्ड सेट करें।");
+        passwordPrompt.textContent = "पहली बार लॉगिन — पासवर्ड सेट करें 🔑";
+        passwordSection.classList.remove("hidden");
+        submitBtn.onclick = async () => {
+          const pass = passwordInput.value.trim();
+          if (pass.length !== 10 || isNaN(pass)) {
+            alert("⚠️ पासवर्ड 10 अंकों का होना चाहिए (केवल संख्या)।");
+            return;
+          }
+          const hashed = await hashPassword(pass);
+          localStorage.setItem("anjali_password_hash", hashed);
+          speak("आपका पासवर्ड सुरक्षित कर लिया गया है।");
+          alert("✅ पासवर्ड सेट हो गया!");
+          location.reload();
+        };
+      }
+
+      // यदि पासवर्ड पहले से है
+      else {
+        speak("कृपया पासवर्ड टाइप करें।");
+        passwordPrompt.textContent = "कृपया पासवर्ड दर्ज करें 🔒";
+        passwordSection.classList.remove("hidden");
+        changeBtn.classList.remove("hidden");
+
+        submitBtn.onclick = async () => {
+          const pass = passwordInput.value.trim();
+          const match = await checkPassword(pass);
+          if (match) {
+            speak("पासवर्ड सही है, कंट्रोल पैनल खोला जा रहा है।");
+            alert("✅ पासवर्ड सत्यापित हुआ!");
+            window.location.href = "control-panel/index.html";
+          } else {
+            speak("गलत पासवर्ड है, कृपया पुनः प्रयास करें।");
+            alert("❌ गलत पासवर्ड!");
+          }
+        };
+
+        changeBtn.onclick = async () => {
+          const oldPass = prompt("पुराना पासवर्ड दर्ज करें:");
+          if (!oldPass) return;
+          const match = await checkPassword(oldPass);
+          if (!match) {
+            speak("पुराना पासवर्ड गलत है।");
+            alert("❌ पुराना पासवर्ड गलत है।");
+            return;
+          }
+          const newPass = prompt("नया 10 अंकों का पासवर्ड दर्ज करें:");
+          if (!newPass || newPass.length !== 10 || isNaN(newPass)) {
+            alert("⚠️ नया पासवर्ड 10 अंकों का होना चाहिए।");
+            return;
+          }
+          const hashed = await hashPassword(newPass);
+          localStorage.setItem("anjali_password_hash", hashed);
+          speak("नया पासवर्ड सुरक्षित कर लिया गया है।");
+          alert("✅ पासवर्ड बदल गया!");
+          location.reload();
+        };
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
 </html>
