@@ -18,7 +18,7 @@ const DATA_PATH = "data/";
  *****************************************************/
 const REQUEST_LIMIT = 60;
 let requestCount = parseInt(localStorage.getItem("anjali_request_count") || "0");
-let lastReset = localStorage.getItem("anjali_request_reset") || Date.now();
+let lastReset = Number(localStorage.getItem("anjali_request_reset")) || Date.now();
 
 function initRequestCounter() {
   const now = Date.now();
