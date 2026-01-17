@@ -1,165 +1,137 @@
-/*******************************************************
- * 🎤 Anjali Quiz Bank – Student Voice Mode
- * Data Source: GitHub JSON
- * Features: Speak Question, Listen Answer, React
- *******************************************************/
+let quizData = {};
+let currentIndex = 0;
+let currentMode = "";
+let selectedSubject = "";
+let selectedSubtopic = "";
 
-const dataFiles = [
-  "../data/general_knowledge.json",
-  "../data/general_hindi.json",
-  "../data/numerical_ability.json",
-  "../data/reasoning.json"
-];
-
-let allQuestions = [];
-let currentQuestion = 0;
-let synth = window.speechSynthesis;
-let recognition;
-let voices = [];
-
-/*********************
- * 🔹 आवाज़ Initialization
- *********************/
-function initVoice() {
-  voices = synth.getVoices();
-  if (voices.length === 0) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      voices = synth.getVoices();
-    };
-  }
-}
-
-/*********************
- * 🔹 अंजली बोले
- *********************/
-function anjaliSpeak(text) {
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "hi-IN";
-  utter.pitch = 1.1;
-  utter.rate = 0.95;
-  utter.volume = 1;
-  const femaleVoice = voices.find(v => v.name.toLowerCase().includes("female") || v.lang.startsWith("hi"));
-  utter.voice = femaleVoice || voices[0];
-  synth.speak(utter);
-}
-
-/*********************
- * 🔹 GitHub से JSON लोड करें
- *********************/
-async function loadQuestions() {
-  for (const file of dataFiles) {
-    try {
-      const res = await fetch(file);
-      const json = await res.json();
-      Object.values(json.subtopics).forEach(sub => {
-        if (sub.mcq && sub.mcq.length) allQuestions.push(...sub.mcq);
-      });
-    } catch (err) {
-      console.warn("⚠️ डेटा लोड त्रुटि:", file, err);
-    }
-  }
-  startQuiz();
-}
-
-/*********************
- * 🔹 Quiz शुरू करें
- *********************/
-function startQuiz() {
-  if (allQuestions.length === 0) {
-    document.getElementById("questionBox").textContent = "❌ कोई प्रश्न उपलब्ध नहीं है।";
-    return;
-  }
-  currentQuestion = 0;
-  askQuestion();
-}
-
-/*********************
- * 🔹 प्रश्न पूछें
- *********************/
-function askQuestion() {
-  const q = allQuestions[currentQuestion];
-  const qBox = document.getElementById("questionBox");
-  const oBox = document.getElementById("optionsBox");
-  const responseBox = document.getElementById("anjaliResponse");
-
-  qBox.textContent = `Q${currentQuestion + 1}) ${q.q}`;
-  oBox.innerHTML = `
-    <button onclick="checkAnswer('A')">A) ${q.a}</button>
-    <button onclick="checkAnswer('B')">B) ${q.b}</button>
-    <button onclick="checkAnswer('C')">C) ${q.c}</button>
-    <button onclick="checkAnswer('D')">D) ${q.d}</button>
-  `;
-  responseBox.textContent = "";
-
-  anjaliSpeak(`प्रश्न ${currentQuestion + 1}. ${q.q}. विकल्प हैं — A) ${q.a}, B) ${q.b}, C) ${q.c}, D) ${q.d}`);
-}
-
-/*********************
- * 🔹 उत्तर जांचें
- *********************/
-function checkAnswer(selected) {
-  const q = allQuestions[currentQuestion];
-  const responseBox = document.getElementById("anjaliResponse");
-
-  if (selected === q.correct.trim().toUpperCase()) {
-    responseBox.textContent = "✅ आपका उत्तर सही है! बहुत अच्छा!";
-    anjaliSpeak("आपका उत्तर सही है, बहुत अच्छा!");
-  } else {
-    responseBox.textContent = `❌ सही उत्तर है ${q.correct}. ${q.exp}`;
-    anjaliSpeak(`गलत उत्तर। सही उत्तर है ${q.correct}. ${q.exp}`);
-  }
-
-  setTimeout(() => {
-    currentQuestion++;
-    if (currentQuestion < allQuestions.length) askQuestion();
-    else {
-      responseBox.textContent = "🎉 सभी प्रश्न समाप्त! बहुत बढ़िया प्रयास!";
-      anjaliSpeak("सभी प्रश्न समाप्त हुए, बहुत अच्छा प्रयास!");
-    }
-  }, 7000);
-}
-
-/*********************
- * 🔹 आवाज़ से उत्तर लें
- *********************/
-function startListening() {
-  if (!('webkitSpeechRecognition' in window)) {
-    alert("❌ आपका ब्राउज़र वॉयस रिकग्निशन सपोर्ट नहीं करता।");
-    return;
-  }
-
-  recognition = new webkitSpeechRecognition();
-  recognition.lang = "hi-IN";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.start();
-  anjaliSpeak("आपका उत्तर सुन रही हूँ...");
-
-  recognition.onresult = event => {
-    const transcript = event.results[0][0].transcript.trim().toLowerCase();
-    if (transcript.includes("ए") || transcript.includes("option a")) checkAnswer("A");
-    else if (transcript.includes("बी") || transcript.includes("option b")) checkAnswer("B");
-    else if (transcript.includes("सी") || transcript.includes("option c")) checkAnswer("C");
-    else if (transcript.includes("डी") || transcript.includes("option d")) checkAnswer("D");
-    else anjaliSpeak("उत्तर स्पष्ट नहीं था, कृपया दोबारा कहें।");
-  };
-
-  recognition.onerror = () => {
-    anjaliSpeak("कुछ समस्या हुई, कृपया फिर प्रयास करें।");
-  };
-}
-
-/*********************
- * 🔹 Initialize
- *********************/
 window.addEventListener("DOMContentLoaded", () => {
-  initVoice();
-  loadQuestions();
-
-  document.getElementById("micBtn").addEventListener("click", startListening);
-
-  setTimeout(() => {
-    anjaliSpeak("नमस्ते! चलिए शुरू करते हैं आज का वॉयस क्विज़। ध्यान से सुनिए और उत्तर दीजिए।");
-  }, 1500);
+  speak("नमस्ते विद्यार्थी! मैं अंजली हूँ, चलिए शुरू करें आपकी ज्ञान यात्रा।");
+  loadSubjects();
 });
+
+function speak(text) {
+  const synth = window.speechSynthesis;
+  const voiceCheck = setInterval(() => {
+    const voices = synth.getVoices();
+    if (voices.length > 0) {
+      clearInterval(voiceCheck);
+      let femaleVoice = voices.find(v =>
+        v.lang.startsWith("hi") || v.name.includes("Google हिन्दी")
+      );
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.pitch = 1.1;
+      utter.rate = 0.95;
+      utter.voice = femaleVoice || voices[0];
+      synth.speak(utter);
+    }
+  }, 300);
+}
+
+function loadSubjects() {
+  const subjectDropdown = document.getElementById("subject");
+  const subjects = ["General Knowledge", "General Hindi", "Numerical & Mental Ability", "Mental Aptitude / Reasoning"];
+  subjects.forEach(sub => {
+    const opt = document.createElement("option");
+    opt.value = sub;
+    opt.textContent = sub;
+    subjectDropdown.appendChild(opt);
+  });
+}
+
+function loadSubtopics() {
+  const subject = document.getElementById("subject").value;
+  const subDropdown = document.getElementById("subtopic");
+  subDropdown.innerHTML = "<option value=''>-- उप-विषय चुनें --</option>";
+
+  fetch(`../data/${subject.toLowerCase().replace(/ & | /g, "_")}.json`)
+    .then(res => res.json())
+    .then(data => {
+      quizData = data.subtopics;
+      Object.keys(quizData).forEach(sub => {
+        const opt = document.createElement("option");
+        opt.value = sub;
+        opt.textContent = sub;
+        subDropdown.appendChild(opt);
+      });
+
+      document.getElementById("modeBox").querySelectorAll(".modeBtn").forEach(btn => btn.classList.add("hidden"));
+      if (subject === "General Knowledge") {
+        document.getElementById("studyBtn").classList.remove("hidden");
+        document.getElementById("quizBtn").classList.remove("hidden");
+      } else {
+        document.getElementById("studyBtn").classList.remove("hidden");
+      }
+    });
+}
+
+function startStudy() {
+  selectedSubject = document.getElementById("subject").value;
+  selectedSubtopic = document.getElementById("subtopic").value;
+  currentMode = "study";
+  showQuestion();
+}
+
+function startQuiz() {
+  selectedSubject = document.getElementById("subject").value;
+  selectedSubtopic = document.getElementById("subtopic").value;
+  currentMode = "quiz";
+  showQuestion();
+}
+
+function showQuestion() {
+  const box = document.getElementById("questionBox");
+  box.classList.remove("hidden");
+  document.getElementById("optionsBox").classList.add("hidden");
+  document.getElementById("explanationText").classList.add("hidden");
+
+  const subData = quizData[selectedSubtopic];
+  if (!subData) return;
+
+  if (currentMode === "study") {
+    const list = subData.one_liner;
+    const item = list[currentIndex];
+    if (!item) return speak("अध्ययन समाप्त हुआ, बहुत अच्छा कार्य किया!");
+    document.getElementById("questionText").innerText = `📘 ${item.q}`;
+    speak(item.q);
+  }
+
+  if (currentMode === "quiz") {
+    const list = subData.mcq;
+    const item = list[currentIndex];
+    if (!item) return speak("क्विज समाप्त हुआ! आपने बहुत अच्छा प्रदर्शन किया!");
+    document.getElementById("questionText").innerText = item.q;
+    speak(item.q);
+
+    const optBox = document.getElementById("optionsBox");
+    optBox.classList.remove("hidden");
+    optBox.innerHTML = "";
+    ["a", "b", "c", "d"].forEach(k => {
+      const btn = document.createElement("button");
+      btn.textContent = item[k];
+      btn.onclick = () => checkAnswer(k, item.correct, item.exp);
+      optBox.appendChild(btn);
+    });
+  }
+
+  document.getElementById("nextBtn").classList.remove("hidden");
+  document.getElementById("backBtn").classList.remove("hidden");
+}
+
+function checkAnswer(selected, correct, exp) {
+  if (selected.toUpperCase() === correct.toUpperCase()) {
+    speak("आपका उत्तर सही है, बहुत अच्छा!");
+  } else {
+    speak("मैं सही उत्तर और व्याख्या बता रही हूँ, इसे याद कर लेना।");
+  }
+  document.getElementById("explanationText").innerText = exp || "";
+  document.getElementById("explanationText").classList.remove("hidden");
+}
+
+function nextQuestion() {
+  currentIndex++;
+  showQuestion();
+}
+
+function resetPanel() {
+  window.location.reload();
+          }
