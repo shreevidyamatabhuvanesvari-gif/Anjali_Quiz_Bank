@@ -1,6 +1,9 @@
 /*****************************************************
- * 📘 Anjali Quiz Bank – upload.js (Final Integrated Version)
- * ✅ Smart Parser + Request Counter Fix + View/Delete Synced
+ * 📘 Anjali Quiz Bank – upload.js (Final Stable Build)
+ * ✅ Clean Integration with index.html
+ * ✅ Smart Parser (Q:/Q), Answer:/Ans:, Exp:/Explanation:)
+ * ✅ Request Counter Auto Reset
+ * ✅ View / Delete / Upload Full Working
  *****************************************************/
 
 // 🔹 अपनी जानकारी यहाँ डालें
@@ -23,7 +26,7 @@ function initRequestCounter() {
   const now = Date.now();
   const oneHour = 60 * 60 * 1000;
 
-  // Auto-reset logic
+  // हर घंटे ऑटो रीसेट
   if (now - lastReset >= oneHour) {
     requestCount = 0;
     lastReset = now;
@@ -51,13 +54,14 @@ function updateRequestCounter() {
   requestCount++;
   if (requestCount > REQUEST_LIMIT) requestCount = REQUEST_LIMIT;
   localStorage.setItem("anjali_request_count", requestCount.toString());
+
   const counter = document.getElementById("requestCounter");
   if (counter)
     counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
 }
 
 /*****************************************************
- * 🔹 Smart Parser for MCQ / One-Liner
+ * 🔹 Smart Parser (Q:/Q), Answer:/Ans:, Exp:/Explanation:)
  *****************************************************/
 function parseMCQInput(text) {
   const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
@@ -70,10 +74,10 @@ function parseMCQInput(text) {
     else if (/^B[\):]/i.test(line)) q.b = line.replace(/^B[\):]/i, "").trim();
     else if (/^C[\):]/i.test(line)) q.c = line.replace(/^C[\):]/i, "").trim();
     else if (/^D[\):]/i.test(line)) q.d = line.replace(/^D[\):]/i, "").trim();
-    else if (/^Answer[\):]/i.test(line) || /^Ans[\):]/i.test(line))
-      q.correct = line.replace(/^Answer[\):]/i, "").replace(/^Ans[\):]/i, "").trim();
-    else if (/^Exp[\):]/i.test(line) || /^Explanation[\):]/i.test(line)) {
-      q.exp = line.replace(/^Exp[\):]/i, "").replace(/^Explanation[\):]/i, "").trim();
+    else if (/^(Answer|Ans)[\):]/i.test(line))
+      q.correct = line.replace(/^(Answer|Ans)[\):]/i, "").trim();
+    else if (/^(Exp|Explanation)[\):]/i.test(line)) {
+      q.exp = line.replace(/^(Exp|Explanation)[\):]/i, "").trim();
       questions.push({ ...q });
       q = {};
     }
@@ -82,7 +86,7 @@ function parseMCQInput(text) {
 }
 
 /*****************************************************
- * 🔹 लोकल डेटा सेव
+ * 🔹 Save Questions Locally
  *****************************************************/
 document.getElementById("saveBtn").addEventListener("click", () => {
   const subject = document.getElementById("subject").value;
@@ -146,11 +150,12 @@ document.getElementById("viewBtn").addEventListener("click", () => {
     }
     qList.innerHTML = html;
   }
+
   qList.classList.toggle("hidden");
 });
 
 /*****************************************************
- * 🔹 Delete Selected Questions
+ * 🔹 Delete Questions (Subtopic-wise)
  *****************************************************/
 document.getElementById("deleteBtn").addEventListener("click", () => {
   const subject = document.getElementById("subject").value;
@@ -162,13 +167,10 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
   }
 
   const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
-  const data = saved[subject]?.[subtopic];
-
-  if (!data) return alert("❌ कोई प्रश्न नहीं मिला।");
-
-  const mcqCount = data.mcq.length;
-  const oneCount = data.one_liner.length;
-  if (!mcqCount && !oneCount) return alert("❌ कोई प्रश्न नहीं हैं।");
+  if (!saved[subject] || !saved[subject][subtopic]) {
+    alert("❌ कोई प्रश्न नहीं मिला।");
+    return;
+  }
 
   if (confirm(`"${subject}" → "${subtopic}" के सभी प्रश्न हटाने हैं?`)) {
     saved[subject][subtopic] = { mcq: [], one_liner: [] };
@@ -178,11 +180,14 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
 });
 
 /*****************************************************
- * 🔹 Upload to GitHub (Single Button)
+ * 🔹 Upload to GitHub
  *****************************************************/
 document.getElementById("uploadBtn").addEventListener("click", async () => {
   const localData = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
-  if (!Object.keys(localData).length) return alert("⚠️ कोई नया डेटा नहीं मिला।");
+  if (!Object.keys(localData).length) {
+    alert("⚠️ कोई नया डेटा नहीं मिला!");
+    return;
+  }
 
   const fileMap = {
     "General Knowledge": "general_knowledge.json",
@@ -195,15 +200,15 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
     const fileName = fileMap[subject];
     if (!fileName) continue;
 
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`);
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
+    const res = await fetch(url);
     const json = res.status === 404 ? { content: "e30=", sha: null } : await res.json();
     const existing = JSON.parse(atob(json.content));
     const merged = mergeData(existing, localData, subject);
-
     await uploadToGitHub(fileName, merged, json.sha);
   }
 
-  alert("✅ सभी प्रश्न सफलतापूर्वक GitHub पर अपलोड हुए!");
+  alert("✅ सभी प्रश्न GitHub पर सफलतापूर्वक अपलोड किए गए!");
   localStorage.removeItem("anjaliTempData");
 });
 
@@ -216,13 +221,28 @@ document.getElementById("tokenBox").addEventListener("change", e => {
 });
 
 /*****************************************************
- * 🔹 Initialization
+ * 🔹 Initialize
  *****************************************************/
 window.addEventListener("DOMContentLoaded", initRequestCounter);
 
 /*****************************************************
- * 🔹 Helper: Merge Data
+ * 🔹 Helper Functions
  *****************************************************/
+async function uploadToGitHub(fileName, data, sha = null) {
+  updateRequestCounter();
+
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
+  const headers = { "Content-Type": "application/json" };
+  if (GITHUB_TOKEN) headers["Authorization"] = `token ${GITHUB_TOKEN}`;
+
+  const message = `📤 Updated ${fileName} from Anjali Control Panel`;
+  const content = btoa(JSON.stringify(data, null, 2));
+  const payload = { message, content, branch: GITHUB_BRANCH, sha };
+
+  const res = await fetch(url, { method: "PUT", headers, body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error(await res.text());
+}
+
 function mergeData(remoteData, localData, subjectName) {
   const updated = remoteData || { subject: subjectName, subtopics: {} };
   for (const sub in localData[subjectName]) {
@@ -232,4 +252,4 @@ function mergeData(remoteData, localData, subjectName) {
     updated.subtopics[sub].one_liner.push(...subData.one_liner);
   }
   return updated;
-        }
+}
