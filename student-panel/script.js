@@ -4,7 +4,7 @@ let currentMode = "";
 let selectedSubject = "";
 let selectedSubtopic = "";
 
-// 🔹 अंजली की वाणी
+// 🔊 अंजली की आवाज़ (Voice Engine)
 function speak(text) {
   const synth = window.speechSynthesis;
   const speakNow = () => {
@@ -21,9 +21,9 @@ function speak(text) {
   } else speakNow();
 }
 
-// 🔹 पेज लोड पर
+// 🔹 पेज लोड होते ही
 window.addEventListener("DOMContentLoaded", () => {
-  speak("नमस्ते विद्यार्थी, मैं अंजली हूँ। बताइए, कौन सा विषय पढ़ना चाहते हैं?");
+  speak("नमस्ते विद्यार्थी, मैं अंजली हूँ। बताइए, कौन सा विषय पढ़ना चाहेंगे?");
   loadSubjects();
 });
 
@@ -44,7 +44,7 @@ function loadSubjects() {
   });
 }
 
-// 🔹 उप-विषय लोड करें
+// 🔹 उपविषय लोड करें
 function loadSubtopics() {
   const subject = document.getElementById("subject").value;
   if (!subject) return;
@@ -52,7 +52,6 @@ function loadSubtopics() {
   const subDropdown = document.getElementById("subtopic");
   subDropdown.innerHTML = "<option value=''>-- उप-विषय चुनें --</option>";
 
-  // ✅ JSON path fix
   let fileName = "";
   if (subject === "General Knowledge") fileName = "general_knowledge.json";
   else if (subject === "General Hindi") fileName = "general_hindi.json";
@@ -70,22 +69,23 @@ function loadSubtopics() {
         subDropdown.appendChild(opt);
       });
 
-      document.getElementById("studyBtn").classList.add("hidden");
-      document.getElementById("quizBtn").classList.add("hidden");
+      document.querySelectorAll(".modeBtn").forEach(btn => btn.classList.add("hidden"));
 
       if (subject === "General Knowledge") {
         document.getElementById("studyBtn").classList.remove("hidden");
         document.getElementById("quizBtn").classList.remove("hidden");
+      } else if (subject === "Numerical & Mental Ability" || subject === "Mental Aptitude / Reasoning") {
+        document.getElementById("stepBtn").classList.remove("hidden");
       } else {
         document.getElementById("studyBtn").classList.remove("hidden");
       }
 
-      speak(`${subject} विषय चुना गया है, अब कृपया उपविषय चुनें।`);
+      speak(`${subject} विषय चुना गया है। अब कृपया उपविषय चुनें।`);
     })
     .catch(() => alert("⚠️ डेटा लोड करने में समस्या!"));
 }
 
-// 🔹 Study Mode शुरू करें
+// 🔹 Study Mode
 function startStudy() {
   selectedSubject = document.getElementById("subject").value;
   selectedSubtopic = document.getElementById("subtopic").value;
@@ -95,12 +95,22 @@ function startStudy() {
   showQuestion();
 }
 
-// 🔹 Quiz Mode शुरू करें
+// 🔹 Quiz Mode
 function startQuiz() {
   selectedSubject = document.getElementById("subject").value;
   selectedSubtopic = document.getElementById("subtopic").value;
   if (!selectedSubtopic) return alert("कृपया उपविषय चुनें!");
   currentMode = "quiz";
+  currentIndex = 0;
+  showQuestion();
+}
+
+// 🔹 Step-by-Step Mode (Maths/Reasoning)
+function startStepMode() {
+  selectedSubject = document.getElementById("subject").value;
+  selectedSubtopic = document.getElementById("subtopic").value;
+  if (!selectedSubtopic) return alert("कृपया उपविषय चुनें!");
+  currentMode = "step";
   currentIndex = 0;
   showQuestion();
 }
@@ -112,14 +122,15 @@ function showQuestion() {
 
   const qBox = document.getElementById("questionBox");
   qBox.classList.remove("hidden");
+  const expBox = document.getElementById("explanationText");
+  const optBox = document.getElementById("optionsBox");
+  expBox.classList.add("hidden");
+  optBox.classList.add("hidden");
 
   if (currentMode === "study") {
     const list = subData.one_liner;
     const item = list[currentIndex];
-    if (!item) {
-      speak("अध्ययन समाप्त हुआ, बहुत अच्छा किया!");
-      return;
-    }
+    if (!item) return speak("अध्ययन समाप्त हुआ, बहुत अच्छा किया!");
     document.getElementById("questionText").innerText = item.q;
     speak(item.q);
   }
@@ -127,15 +138,10 @@ function showQuestion() {
   if (currentMode === "quiz") {
     const list = subData.mcq;
     const item = list[currentIndex];
-    if (!item) {
-      speak("क्विज़ समाप्त हुआ! बहुत अच्छा प्रदर्शन किया।");
-      return;
-    }
-
+    if (!item) return speak("क्विज समाप्त हुआ!");
     document.getElementById("questionText").innerText = item.q;
     speak(item.q);
 
-    const optBox = document.getElementById("optionsBox");
     optBox.classList.remove("hidden");
     optBox.innerHTML = "";
     ["a", "b", "c", "d"].forEach(k => {
@@ -144,6 +150,16 @@ function showQuestion() {
       btn.onclick = () => checkAnswer(k, item.correct, item.exp);
       optBox.appendChild(btn);
     });
+  }
+
+  if (currentMode === "step") {
+    const list = subData.mcq;
+    const item = list[currentIndex];
+    if (!item) return speak("अध्ययन समाप्त हुआ।");
+    document.getElementById("questionText").innerText = item.q;
+    speak(`चलिये चरणबद्ध समाधान समझते हैं। प्रश्न है — ${item.q}.`);
+    expBox.innerText = "पहला चरण: प्रश्न को ध्यान से पढ़िए। दूसरा चरण: सही विकल्प का विश्लेषण कीजिए। तीसरा चरण: उत्तर चुनिए।";
+    expBox.classList.remove("hidden");
   }
 
   document.getElementById("nextBtn").classList.remove("hidden");
@@ -156,10 +172,11 @@ function checkAnswer(selected, correct, exp) {
   if (selected.toUpperCase() === correct.toUpperCase()) {
     speak("आपका उत्तर सही है, बहुत अच्छा!");
   } else {
-    speak("यह उत्तर गलत है, ध्यान दें:");
+    speak(`उत्तर गलत है, सही उत्तर है विकल्प ${correct}.`);
   }
   expBox.innerText = exp || "व्याख्या उपलब्ध नहीं।";
   expBox.classList.remove("hidden");
+  speak(expBox.innerText);
 }
 
 // 🔹 अगला प्रश्न
@@ -171,4 +188,4 @@ function nextQuestion() {
 // 🔹 पैनल रीसेट
 function resetPanel() {
   window.location.reload();
-          }
+}
