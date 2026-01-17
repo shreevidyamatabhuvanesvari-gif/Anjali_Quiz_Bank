@@ -4,246 +4,51 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📘 Anjali Quiz Bank – Control Panel</title>
-  <link rel="manifest" href="../manifest.json">
   <link rel="stylesheet" href="styles.css">
   <script defer src="upload.js"></script>
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f6f6ff;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #8b2d2d;
-      color: white;
-      text-align: center;
-      padding: 12px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    .container {
-      max-width: 850px;
-      margin: 20px auto;
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-    label {
-      font-weight: bold;
-      color: #8b2d2d;
-      display: block;
-      margin-top: 10px;
-    }
-    select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    textarea {
-      height: 150px;
-      resize: vertical;
-      font-family: monospace;
-    }
-    button {
-      font-weight: bold;
-      color: white;
-      background: #8b2d2d;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-    button.danger {
-      background: #b91c1c;
-    }
-    button.success {
-      background: #2d6a4f;
-    }
-    #questionList {
-      background: #fffdf4;
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-    .hidden {
-      display: none;
-    }
-    footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 13px;
-      color: #777;
-    }
-  </style>
 </head>
-<body>
 
+<body>
   <header>📘 Anjali Quiz Bank – Control Panel</header>
 
   <div class="container">
-
-    <!-- 🔹 विषय चयन -->
     <label for="subject">विषय चुनें:</label>
     <select id="subject">
       <option value="">-- विषय चुनें --</option>
     </select>
 
-    <!-- 🔹 उप-विषय चयन -->
     <label for="subtopic">उप-विषय चुनें:</label>
     <select id="subtopic">
       <option value="">-- उप-विषय चुनें --</option>
     </select>
 
-    <!-- 🔹 प्रश्न प्रकार चयन -->
     <label for="type">प्रश्न का प्रकार:</label>
     <select id="type">
       <option value="mcq">📘 MCQ (बहुविकल्पीय प्रश्न)</option>
-      <option value="one-liner">📌 One Liner (एक पंक्ति प्रश्न)</option>
+      <option value="one-liner">📌 One-Liner</option>
     </select>
 
-    <!-- 🔹 प्रश्न इनपुट -->
     <label for="questionData">प्रश्न दर्ज करें:</label>
-    <textarea id="questionData" placeholder="MCQ के लिए उदाहरण:
-Q) भारत की राजधानी क्या है?
+    <textarea id="questionData" placeholder="Q) भारत की राजधानी क्या है?
 A) दिल्ली
 B) मुंबई
 C) कोलकाता
 D) चेन्नई
 Answer: A
-Exp: दिल्ली भारत की राजधानी है।
+Exp: दिल्ली भारत की राजधानी है।"></textarea>
 
-या One-Liner के लिए:
-भारत का सबसे बड़ा राज्य राजस्थान है।"></textarea>
-
-    <!-- 🔹 बटन -->
-    <button id="saveBtn">💾 प्रश्न सेव करें</button>
-    <button id="viewBtn" class="success">📄 प्रश्न देखें</button>
-    <button id="deleteBtn" class="danger">🗑️ चयनित प्रश्न हटाएँ</button>
-
-    <div id="questionList" class="hidden"></div>
-
-    <button id="uploadBtn" class="success">⬆️ Upload to GitHub</button>
-
-    <input id="tokenBox" type="password" placeholder="🔑 यदि GitHub Token है, यहाँ लिखें (optional)" style="margin-top:10px;">
-
-    <div class="note" style="background:#fff9e6;padding:10px;border-radius:6px;margin-top:15px;color:#555;">
-      💡 नोट:  
-      यह कंट्रोल पैनल आपके सभी विषयों और उप-विषयों की JSON फ़ाइलों से जुड़ा हुआ है।  
-      सेव किए गए प्रश्न लोकल रूप में सेव होंगे और GitHub पर अपलोड किए जा सकते हैं।
+    <div class="btn-group">
+      <button id="saveBtn">💾 प्रश्न सेव करें</button>
+      <button id="viewBtn">📄 प्रश्न देखें</button>
+      <button id="deleteBtn" class="danger">🗑️ चयनित प्रश्न हटाएँ</button>
+      <button id="uploadBtn" class="success">⬆️ Upload to GitHub</button>
     </div>
+
+    <div id="questionList" class="hidden box"></div>
+
+    <input type="password" id="tokenBox" placeholder="🔑 यदि Token है, यहाँ लिखें (optional)" />
   </div>
 
   <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
-  <script defer src="upload.js"></script>
-  
-  <script>
-    /****************************************************
-     * 🔹 Fetch Linking System (सभी विषय JSON लोड करना)
-     ****************************************************/
-    const dataFiles = [
-      "../data/general_knowledge.json",
-      "../data/general_hindi.json",
-      "../data/numerical_ability.json",
-      "../data/reasoning.json"
-    ];
-
-    const allData = {};
-
-    async function loadAllData() {
-      for (let file of dataFiles) {
-        try {
-          const res = await fetch(file);
-          const json = await res.json();
-          allData[json.subject] = json.subtopics;
-        } catch (e) {
-          console.warn("⚠️ लोडिंग समस्या:", file, e);
-        }
-      }
-      populateSubjects();
-    }
-
-    function populateSubjects() {
-      const subjectSelect = document.getElementById("subject");
-      subjectSelect.innerHTML = `<option value="">-- विषय चुनें --</option>`;
-      Object.keys(allData).forEach(subject => {
-        const opt = document.createElement("option");
-        opt.value = subject;
-        opt.textContent = subject;
-        subjectSelect.appendChild(opt);
-      });
-    }
-
-    document.getElementById("subject").addEventListener("change", () => {
-      const subs = allData[document.getElementById("subject").value] || {};
-      const subSel = document.getElementById("subtopic");
-      subSel.innerHTML = `<option value="">-- उप-विषय चुनें --</option>`;
-      Object.keys(subs).forEach(st => {
-        const opt = document.createElement("option");
-        opt.value = st;
-        opt.textContent = st;
-        subSel.appendChild(opt);
-      });
-    });
-
-    /****************************************************
-     * 🔹 लोकल डेटा में प्रश्न सेव करना
-     ****************************************************/
-    document.getElementById("saveBtn").addEventListener("click", () => {
-      const subject = document.getElementById("subject").value;
-      const subtopic = document.getElementById("subtopic").value;
-      const type = document.getElementById("type").value;
-      const text = document.getElementById("questionData").value.trim();
-
-      if (!subject || !subtopic || !text) {
-        alert("⚠️ कृपया सभी फ़ील्ड भरें!");
-        return;
-      }
-
-      const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
-      saved[subject] = saved[subject] || {};
-      saved[subject][subtopic] = saved[subject][subtopic] || { mcq: [], one_liner: [] };
-
-      if (type === "mcq") {
-        const qset = [];
-        let buffer = {};
-        const lines = text.split("\n").filter(x => x.trim() !== "");
-        lines.forEach(line => {
-          if (line.startsWith("Q)")) buffer.q = line.replace("Q)", "").trim();
-          else if (line.startsWith("A)")) buffer.a = line.replace("A)", "").trim();
-          else if (line.startsWith("B)")) buffer.b = line.replace("B)", "").trim();
-          else if (line.startsWith("C)")) buffer.c = line.replace("C)", "").trim();
-          else if (line.startsWith("D)")) buffer.d = line.replace("D)", "").trim();
-          else if (line.startsWith("Answer:")) buffer.correct = line.replace("Answer:", "").trim();
-          else if (line.startsWith("Exp:")) {
-            buffer.exp = line.replace("Exp:", "").trim();
-            qset.push(buffer);
-            buffer = {};
-          }
-        });
-        saved[subject][subtopic].mcq.push(...qset);
-      } else {
-        text.split("\n").forEach(line => {
-          if (line.trim()) saved[subject][subtopic].one_liner.push({ q: line.trim() });
-        });
-      }
-
-      localStorage.setItem("anjaliTempData", JSON.stringify(saved));
-      alert("✅ प्रश्न सेव हो गए!");
-      document.getElementById("questionData").value = "";
-    });
-
-    window.addEventListener("DOMContentLoaded", loadAllData);
-  </script>
 </body>
 </html>
