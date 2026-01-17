@@ -178,6 +178,50 @@ async function uploadAll() {
   localStorage.removeItem("anjaliTempData");
 }
 
+// ✅ नया Custom Delete Function
+function deleteSelectedQuestions() {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+
+  if (!subject || !subtopic) {
+    alert("⚠️ कृपया विषय और उप-विषय चुनें जिनके प्रश्न हटाने हैं।");
+    return;
+  }
+
+  // Confirm Box के संदेश को अपडेट करो
+  document.getElementById("confirmMessage").textContent =
+    `"${subject}" → "${subtopic}" के सभी प्रश्न हटाने हैं?`;
+
+  // Box दिखाओ
+  const confirmBox = document.getElementById("confirmBox");
+  confirmBox.classList.remove("hidden");
+
+  // Event हैंडलर
+  const yesBtn = document.getElementById("confirmYes");
+  const noBtn = document.getElementById("confirmNo");
+
+  // पहले पुराने इवेंट हटाओ (दोहराव रोकने के लिए)
+  yesBtn.onclick = null;
+  noBtn.onclick = null;
+
+  yesBtn.onclick = () => {
+    confirmBox.classList.add("hidden");
+
+    const saved = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+    if (saved[subject] && saved[subject][subtopic]) {
+      saved[subject][subtopic] = { mcq: [], one_liner: [] };
+      localStorage.setItem("anjaliTempData", JSON.stringify(saved));
+      alert(`🗑️ "${subject}" → "${subtopic}" के सभी प्रश्न हटा दिए गए हैं।`);
+    } else {
+      alert("⚠️ कोई प्रश्न डेटा नहीं मिला।");
+    }
+  };
+
+  noBtn.onclick = () => {
+    confirmBox.classList.add("hidden");
+  };
+}
+
 /*****************************************************
  * 🔹 Control Panel से Trigger बटन और Token Box
  *****************************************************/
@@ -206,4 +250,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (GITHUB_TOKEN) alert("✅ Token सेट कर दिया गया!");
   };
   document.querySelector(".container").appendChild(tokenBox);
+});
+
+// नया Delete बटन एक्टिवेशन
+  const delBtn = document.getElementById("deleteBtn");
+  if (delBtn) delBtn.addEventListener("click", deleteSelectedQuestions);
 });
