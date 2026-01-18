@@ -4,223 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎓 Anjali Quiz Bank – Student Panel</title>
-
-  <style>
-    /* 🌈 Global Theme */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Poppins", system-ui, sans-serif;
-      background: linear-gradient(135deg, #fff7f7, #f3faff);
-      color: #2d3436;
-      text-align: center;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    header {
-      background: #6b1a1a;
-      color: white;
-      padding: 18px 0;
-      font-size: 26px;
-      font-weight: bold;
-      width: 100%;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      letter-spacing: 0.5px;
-    }
-
-    main {
-      flex: 1;
-      padding: 20px;
-      width: 90%;
-      max-width: 800px;
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-      margin-top: 40px;
-      text-align: left;
-    }
-
-    h2 {
-      text-align: center;
-      color: #6b1a1a;
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      text-align: center;
-      font-size: 16px;
-      color: #444;
-      margin-bottom: 25px;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      color: #333;
-      margin-top: 15px;
-      margin-bottom: 6px;
-    }
-
-    select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #bbb;
-      border-radius: 8px;
-      font-size: 15px;
-      outline: none;
-      transition: 0.3s;
-    }
-
-    select:focus {
-      border-color: #6b1a1a;
-      box-shadow: 0 0 6px #ffb3b3;
-    }
-
-    .quiz-box {
-      margin-top: 25px;
-      padding: 18px;
-      border-radius: 10px;
-      background: #f9f9ff;
-      border: 1px solid #ddd;
-      font-size: 16px;
-      line-height: 1.7;
-      min-height: 150px;
-    }
-
-    #nextBtn {
-      margin-top: 18px;
-      background: #6b1a1a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 25px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-      display: none;
-    }
-
-    #nextBtn:hover {
-      background: #962d2d;
-      transform: scale(1.05);
-    }
-
-    footer {
-      font-size: 13px;
-      color: #555;
-      margin: 25px 0;
-    }
-
-    .anjali-speaking {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 8px;
-      box-shadow: 0 0 10px #9be3ff;
-      padding: 8px 14px;
-      font-size: 14px;
-      font-weight: bold;
-      color: #0077cc;
-      border: 1px solid #cce5ff;
-      animation: glow 1.5s infinite alternate;
-    }
-
-    @keyframes glow {
-      from { box-shadow: 0 0 5px #9be3ff; }
-      to { box-shadow: 0 0 15px #00bfff; }
-    }
-
-    @media (max-width: 600px) {
-      main {
-        width: 95%;
-        margin-top: 20px;
-      }
-      header {
-        font-size: 22px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <header>🎓 Anjali Quiz Bank – Student Panel</header>
+  <!-- 🔹 Header -->
+  <header class="header">
+    🎓 Anjali Quiz Bank – Student Panel
+  </header>
 
-  <main>
+  <!-- 🔹 Welcome Section -->
+  <section class="welcome">
     <h2>नमस्ते विद्यार्थी! 👋</h2>
-    <p id="anjaliGreeting">अंजली कहती है — “सीखना कभी बंद मत करो, सफलता स्वयं रास्ता बनाती है।”</p>
+    <p>अंजली कहती है — “सीखना कभी बंद मत करो, सफलता स्वयं रास्ता बनाती है।”</p>
+    <button id="voiceWelcome">🔊 सुनें</button>
+  </section>
 
-    <label for="subject">📘 विषय चुनें:</label>
+  <!-- 🔹 Subject Selection -->
+  <section class="selection">
+    <label>📘 विषय चुनें:</label>
     <select id="subject">
       <option value="">-- विषय चुनें --</option>
+      <option value="General Knowledge">🧠 General Knowledge</option>
+      <option value="General Hindi">📝 General Hindi</option>
+      <option value="Numerical & Mental Ability">➗ Numerical Ability</option>
+      <option value="Reasoning">🔍 Reasoning</option>
     </select>
 
-    <label for="subtopic">📗 उप-विषय चुनें:</label>
+    <label>📗 उप-विषय चुनें:</label>
     <select id="subtopic">
       <option value="">-- उप-विषय चुनें --</option>
     </select>
 
-    <label for="modeSelect">🎯 अध्ययन मोड:</label>
-    <select id="modeSelect">
-      <option value="mcq">🧠 Quiz Mode (MCQ)</option>
-      <option value="one_liner">📘 One-Liner Mode</option>
-      <option value="step">➗ Step-by-Step Solver</option>
-    </select>
+    <button id="startQuiz">🚀 प्रारंभ करें</button>
+    <button id="viewDiagrams">🎨 शैक्षणिक चित्र देखें</button>
+  </section>
 
-    <div id="quizBox" class="quiz-box">
-      📖 कृपया ऊपर से विषय और उप-विषय चुनें।
-    </div>
-    <button onclick="window.location.href='diagrams.html'">🎨 शैक्षणिक चित्र देखें</button>
-
+  <!-- 🔹 Quiz Container -->
+  <div id="quizBox" class="hidden">
+    <h3 id="questionText">यहाँ प्रश्न प्रदर्शित होगा</h3>
+    <div id="options"></div>
     <button id="nextBtn">अगला प्रश्न ➡️</button>
-  </main>
+  </div>
 
-  <footer>© 2026 Anjali Quiz Bank | Voice Powered by अंजली 💬</footer>
+  <!-- 🔹 Footer -->
+  <footer>
+    © 2026 Anjali Quiz Bank | Voice Powered by अंजली 💬
+  </footer>
 
-  <!-- 🎙️ Voice Script -->
+  <!-- ✅ Voice + Logic Script -->
   <script>
-    const AnjaliVoice = {
-      speak(text) {
-        const synth = window.speechSynthesis;
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = "hi-IN";
-        utter.pitch = 1.1;
-        utter.rate = 0.95;
-        utter.volume = 1;
-        synth.speak(utter);
-        showSpeakingIndicator("🎙️ अंजली बोल रही हैं...");
-        utter.onend = hideSpeakingIndicator;
-      },
-      motivate() {
-        this.speak("बहुत बढ़िया प्रयास! आप सफलता की ओर बढ़ रहे हैं।");
-      },
-      welcomeMessage() {
-        this.speak("नमस्ते विद्यार्थी, आज आप कौन सा विषय पढ़ना चाहेंगे?");
-      }
-    };
+    const subjectSelect = document.getElementById("subject");
+    const subtopicSelect = document.getElementById("subtopic");
+    const quizBox = document.getElementById("quizBox");
+    const qText = document.getElementById("questionText");
+    const nextBtn = document.getElementById("nextBtn");
+    const optionsBox = document.getElementById("options");
 
-    function showSpeakingIndicator(msg) {
-      let indicator = document.getElementById("speakIndicator");
-      if (!indicator) {
-        indicator = document.createElement("div");
-        indicator.id = "speakIndicator";
-        indicator.className = "anjali-speaking";
-        document.body.appendChild(indicator);
-      }
-      indicator.textContent = msg;
-    }
+    // 🎨 शैक्षणिक चित्र पेज खोलें
+    document.getElementById("viewDiagrams").addEventListener("click", () => {
+      window.location.href = "diagrams.html";
+    });
 
-    function hideSpeakingIndicator() {
-      const ind = document.getElementById("speakIndicator");
-      if (ind) ind.remove();
-    }
+    // 🎙️ अंजली की स्वागत आवाज़
+    document.getElementById("voiceWelcome").addEventListener("click", () => {
+      const msg = new SpeechSynthesisUtterance("नमस्ते विद्यार्थी! कौन सा विषय पढ़ना चाहेंगे?");
+      msg.lang = "hi-IN";
+      msg.pitch = 1.1;
+      msg.rate = 0.9;
+      window.speechSynthesis.speak(msg);
+    });
+
+    // विषय बदलने पर उपविषय जोड़ना
+    subjectSelect.addEventListener("change", () => {
+      const val = subjectSelect.value;
+      subtopicSelect.innerHTML = "<option value=''>-- उप-विषय चुनें --</option>";
+
+      const topics = {
+        "General Knowledge": ["इतिहास", "भूगोल", "राजव्यवस्था", "अर्थव्यवस्था", "विज्ञान", "करेंट अफेयर्स"],
+        "General Hindi": ["व्याकरण", "मुहावरे", "लोकोक्तियाँ", "संधि", "समास"],
+        "Numerical & Mental Ability": ["प्रतिशत", "औसत", "समय-दूरी", "साधारण ब्याज", "लाभ-हानि"],
+        "Reasoning": ["वेन आरेख", "श्रृंखला", "तुलना", "अंकगणितीय तर्क"]
+      };
+
+      if (topics[val]) {
+        topics[val].forEach(t => {
+          const opt = document.createElement("option");
+          opt.value = t;
+          opt.textContent = t;
+          subtopicSelect.appendChild(opt);
+        });
+      }
+    });
+
+    // क्विज़ प्रारंभ (डेमो)
+    document.getElementById("startQuiz").addEventListener("click", () => {
+      const s = subjectSelect.value;
+      const t = subtopicSelect.value;
+      if (!s || !t) return alert("⚠️ कृपया विषय और उपविषय चुनें।");
+
+      quizBox.classList.remove("hidden");
+      qText.textContent = `विषय: ${s} | उपविषय: ${t}`;
+      optionsBox.innerHTML = "<p>यहाँ प्रश्न लोड होंगे...</p>";
+    });
   </script>
-
-  <!-- 🔗 Main Quiz Logic -->
-  <script defer src="student.js"></script>
 </body>
 </html>
