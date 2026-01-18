@@ -1,0 +1,8 @@
+# 📁 Anjali Quiz Bank – Diagrams Folder
+# This folder contains visual diagrams used across the project.
+# It ensures GitHub recognizes this directory even if images are not yet uploaded.
+
+# Files to be added:
+# 1. venn-diagram-sample.png       → Reasoning (Venn Diagram Example)
+# 2. math-step-example.png          → Step-by-Step Math Solver Illustration
+# 3. student-panel-flow.png         → Student Panel Flowchart Diagram
