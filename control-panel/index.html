@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📘 Anjali Quiz Bank – Control Panel</title>
+
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -12,29 +13,25 @@
 
   <div class="container">
     <label for="subject">📘 विषय चुनें:</label>
-    <select id="subject">
-      <option value="">-- विषय चुनें --</option>
-    </select>
+    <select id="subject"><option value="">-- विषय चुनें --</option></select>
 
     <label for="subtopic">📗 उप-विषय चुनें:</label>
-    <select id="subtopic">
-      <option value="">-- उप-विषय चुनें --</option>
-    </select>
+    <select id="subtopic"><option value="">-- उप-विषय चुनें --</option></select>
 
-    <label for="type">📄 प्रश्न का प्रकार:</label>
+    <label for="type">📝 प्रश्न का प्रकार:</label>
     <select id="type">
-      <option value="mcq">MCQ (बहुविकल्पीय प्रश्न)</option>
-      <option value="one-liner">One-Liner (एक पंक्ति प्रश्न)</option>
+      <option value="mcq">📘 MCQ (बहुविकल्पीय प्रश्न)</option>
+      <option value="one-liner">📌 One-Liner</option>
     </select>
 
     <label for="questionData">✍️ प्रश्न दर्ज करें:</label>
-    <textarea id="questionData" rows="9" placeholder="Q: मोहनजोदड़ो किस नदी के किनारे स्थित था?
-A) गंगा
-B) यमुना
-C) सिंधु
-D) सरस्वती
+    <textarea id="questionData" rows="9" placeholder="Q: उदाहरण प्रश्न...
+A) विकल्प 1
+B) विकल्प 2
+C) विकल्प 3
+D) विकल्प 4
 Ans: C
-Exp: मोहनजोदड़ो सिंधु नदी के तट पर स्थित था।"></textarea>
+Exp: व्याख्या यहाँ लिखें।"></textarea>
 
     <div class="btn-group">
       <button id="saveBtn">💾 प्रश्न सेव करें</button>
@@ -51,6 +48,9 @@ Exp: मोहनजोदड़ो सिंधु नदी के तट प�
   <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
 
   <script>
+    /*****************************************************
+     * 🔹 विषयों और उपविषयों को Auto Load System
+     *****************************************************/
     const dataFiles = [
       "../data/general_knowledge.json",
       "../data/general_hindi.json",
@@ -59,8 +59,6 @@ Exp: मोहनजोदड़ो सिंधु नदी के तट प�
     ];
 
     const allData = {};
-    const subjectSelect = document.getElementById("subject");
-    const subtopicSelect = document.getElementById("subtopic");
 
     async function loadAllSubjects() {
       for (let file of dataFiles) {
@@ -69,11 +67,14 @@ Exp: मोहनजोदड़ो सिंधु नदी के तट प�
           const json = await res.json();
           allData[json.subject] = json.subtopics;
         } catch (e) {
-          console.warn("⚠️ डेटा लोड करने में समस्या:", file, e);
+          console.warn("⚠️ डेटा लोड करने में समस्या:", file);
         }
       }
       populateSubjects();
     }
+
+    const subjectSelect = document.getElementById("subject");
+    const subtopicSelect = document.getElementById("subtopic");
 
     function populateSubjects() {
       subjectSelect.innerHTML = `<option value="">-- विषय चुनें --</option>`;
