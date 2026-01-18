@@ -4,149 +4,100 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📘 Anjali Quiz Bank – Control Panel</title>
-
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #f8f9ff;
-      margin: 0;
-      padding: 0;
-      color: #333;
-      text-align: center;
-    }
-
-    header {
-      background: #5c2e91;
-      color: white;
-      padding: 18px;
-      font-size: 24px;
-      font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    main {
-      margin: 30px auto;
-      max-width: 750px;
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    select, textarea, input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 10px 16px;
-      margin: 8px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    #saveBtn { background: #5c2e91; color: white; }
-    #deleteBtn { background: #c0392b; color: white; }
-    #viewBtn { background: #3498db; color: white; }
-
-    #questionList {
-      margin-top: 20px;
-      text-align: left;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 12px;
-      background: #fafafa;
-      display: none;
-    }
-
-    #confirmBox {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .confirm-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-
-    footer {
-      margin-top: 40px;
-      color: #777;
-      font-size: 14px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <header>📘 Anjali Quiz Bank – Control Panel</header>
 
-  <main class="container">
-    <h2>🧩 नया प्रश्न जोड़ें</h2>
-
-    <label>📚 विषय चुनें:</label>
+  <div class="container">
+    <label for="subject">📘 विषय चुनें:</label>
     <select id="subject">
       <option value="">-- विषय चुनें --</option>
-      <option>General Knowledge</option>
-      <option>General Hindi</option>
-      <option>Numerical & Mental Ability</option>
-      <option>Mental Aptitude / Reasoning</option>
     </select>
 
-    <label>📘 उप-विषय चुनें:</label>
+    <label for="subtopic">📗 उप-विषय चुनें:</label>
     <select id="subtopic">
       <option value="">-- उप-विषय चुनें --</option>
     </select>
 
-    <label>🧠 प्रश्न (Q)/Q:):</label>
-    <textarea id="questionText" placeholder="प्रश्न यहाँ लिखें..."></textarea>
+    <label for="type">📄 प्रश्न का प्रकार:</label>
+    <select id="type">
+      <option value="mcq">MCQ (बहुविकल्पीय प्रश्न)</option>
+      <option value="one-liner">One-Liner (एक पंक्ति प्रश्न)</option>
+    </select>
 
-    <label>🔢 विकल्प (A–D):</label>
-    <input id="optA" placeholder="विकल्प A">
-    <input id="optB" placeholder="विकल्प B">
-    <input id="optC" placeholder="विकल्प C">
-    <input id="optD" placeholder="विकल्प D">
+    <label for="questionData">✍️ प्रश्न दर्ज करें:</label>
+    <textarea id="questionData" rows="9" placeholder="Q: मोहनजोदड़ो किस नदी के किनारे स्थित था?
+A) गंगा
+B) यमुना
+C) सिंधु
+D) सरस्वती
+Ans: C
+Exp: मोहनजोदड़ो सिंधु नदी के तट पर स्थित था।"></textarea>
 
-    <label>✔ सही उत्तर (A/B/C/D):</label>
-    <input id="correctAns" placeholder="सही उत्तर (जैसे A)">
-
-    <label>📖 व्याख्या:</label>
-    <textarea id="explanation" placeholder="उत्तर की व्याख्या..."></textarea>
-
-    <div>
-      <button id="saveBtn">💾 सेव करें</button>
+    <div class="btn-group">
+      <button id="saveBtn">💾 प्रश्न सेव करें</button>
       <button id="viewBtn">📄 प्रश्न देखें</button>
-      <button id="deleteBtn">🗑️ चयनित प्रश्न हटाएँ</button>
-      <button id="uploadBtn">⬆️ Upload to GitHub</button>
+      <button id="deleteBtn" class="danger">🗑️ चयनित प्रश्न हटाएँ</button>
+      <button id="uploadBtn" class="success">⬆️ Upload to GitHub</button>
     </div>
 
-    <div id="questionList"></div>
-  </main>
+    <div id="questionList" class="hidden box"></div>
 
-  <footer>© 2026 Anjali Quiz Bank | Powered by Anjali Voice 💬</footer>
-
-  <div id="confirmBox">
-    <div class="confirm-content">
-      <h3>⚠️ पुष्टि करें</h3>
-      <p id="confirmMessage"></p>
-      <button id="confirmYes">✅ हाँ</button>
-      <button id="confirmNo">❌ नहीं</button>
-    </div>
+    <input type="password" id="tokenBox" placeholder="🔑 यदि Token है, यहाँ लिखें (optional)" />
   </div>
+
+  <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
+
+  <script>
+    const dataFiles = [
+      "../data/general_knowledge.json",
+      "../data/general_hindi.json",
+      "../data/numerical_ability.json",
+      "../data/reasoning.json"
+    ];
+
+    const allData = {};
+    const subjectSelect = document.getElementById("subject");
+    const subtopicSelect = document.getElementById("subtopic");
+
+    async function loadAllSubjects() {
+      for (let file of dataFiles) {
+        try {
+          const res = await fetch(file);
+          const json = await res.json();
+          allData[json.subject] = json.subtopics;
+        } catch (e) {
+          console.warn("⚠️ डेटा लोड करने में समस्या:", file, e);
+        }
+      }
+      populateSubjects();
+    }
+
+    function populateSubjects() {
+      subjectSelect.innerHTML = `<option value="">-- विषय चुनें --</option>`;
+      Object.keys(allData).forEach(subject => {
+        const opt = document.createElement("option");
+        opt.value = subject;
+        opt.textContent = subject;
+        subjectSelect.appendChild(opt);
+      });
+    }
+
+    subjectSelect.addEventListener("change", () => {
+      const subs = allData[subjectSelect.value] || {};
+      subtopicSelect.innerHTML = `<option value="">-- उप-विषय चुनें --</option>`;
+      Object.keys(subs).forEach(st => {
+        const opt = document.createElement("option");
+        opt.value = st;
+        opt.textContent = st;
+        subtopicSelect.appendChild(opt);
+      });
+    });
+
+    window.addEventListener("DOMContentLoaded", loadAllSubjects);
+  </script>
 
   <script defer src="upload.js"></script>
 </body>
