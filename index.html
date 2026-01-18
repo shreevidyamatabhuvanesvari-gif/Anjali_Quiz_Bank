@@ -4,51 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📚 Anjali Quiz Bank – Home</title>
+  <link rel="manifest" href="manifest.json" />
 
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: "Poppins", system-ui, sans-serif;
-      background: linear-gradient(135deg, #fdf6f6, #fff);
+      background: linear-gradient(135deg, #fff5f5, #fefefe);
       color: #333;
       text-align: center;
     }
-
     header {
       background: #8b2d2d;
-      color: white;
+      color: #fff;
       font-size: 28px;
       font-weight: bold;
       padding: 18px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     }
-
     main {
-      margin-top: 60px;
-      padding: 0 20px;
+      margin-top: 80px;
     }
-
-    .motivation {
-      max-width: 700px;
-      margin: 0 auto 40px auto;
-      background: #fff3f3;
-      border-left: 6px solid #8b2d2d;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      line-height: 1.6;
-      color: #5a2a2a;
+    h2 {
+      font-size: 26px;
+      color: #8b2d2d;
+    }
+    p {
+      color: #444;
       font-size: 18px;
-      text-align: justify;
-      animation: fadeIn 2s ease-in-out;
+      margin-bottom: 40px;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     .button {
       display: inline-block;
       margin: 15px;
@@ -62,31 +48,47 @@
       background: #8b2d2d;
       transition: all 0.3s ease;
     }
-
     .button:hover {
       background: #a33a3a;
       transform: scale(1.05);
     }
-
-    #passwordBox {
-      margin-top: 20px;
-    }
-
-    input {
-      padding: 12px;
-      font-size: 18px;
-      width: 280px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
-    .hidden { display: none; }
-
     footer {
       margin-top: 80px;
       font-size: 14px;
       color: #777;
+    }
+    .anjali {
+      animation: fadeIn 1.5s ease-in-out;
+      font-style: italic;
+      color: #8b2d2d;
+      margin: 20px auto;
+      max-width: 650px;
+      line-height: 1.6;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #passwordBox {
+      display: none;
+      margin-top: 20px;
+    }
+    input[type="password"] {
+      padding: 10px;
+      width: 250px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+    #submitPassword {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background: #8b2d2d;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -95,150 +97,72 @@
   <header>📚 Anjali Quiz Bank</header>
 
   <main>
-    <div class="motivation" id="motivationText">
-      “नमस्ते, मैं अंजली हूँ — आपकी अध्ययन साथी।  
-      जब मन में विश्वास होता है, तो कोई भी लक्ष्य दूर नहीं रहता।  
-      याद रखो — ‘मन के हारे हार है, मन के जीते जीत।’  
-      हर प्रश्न, हर प्रयास तुम्हें मंज़िल के, एक कदम और करीब लाता है।  
-      गलती करना कमजोरी नहीं, बल्कि सीखने का सबसे बड़ा अवसर है।  
-      आज का दिन नया है, नई शुरुआत का, —  
-      खुद पर भरोसा रखो, क्योंकि तुम वही कर सकते हो, जो तुम सोचते हो।  
-      चलो, मुस्कुराओ, और आत्मविश्वास के साथ आगे बढ़ो।  
-      ज्ञान ही शक्ति है... और यह शक्ति अब तुम्हारे साथ है।” 
-    </div>
+    <h2>नमस्ते विद्यार्थी! 👋</h2>
+    <p class="anjali" id="anjaliGreeting">
+      “सपनों को सच करने के लिए पढ़ना जरूरी है।<br>
+      हार मत मानो — हर असफलता सफलता की पहली सीढ़ी है।”
+    </p>
 
-    <button class="button" onclick="goToStudent()">🎓 Student Panel</button>
-    <button class="button" onclick="showPasswordBox()">⚙️ Control Panel</button>
+    <button class="button" onclick="goToStudent()">🎓 Student Panel खोलें</button>
+    <button class="button" onclick="showPasswordBox()">⚙️ Control Panel खोलें</button>
 
-    <div id="passwordBox" class="hidden">
-      <p id="passwordPrompt">कृपया पासवर्ड दर्ज करें 🔒</p>
-      <input type="password" id="passwordInput" maxlength="10" placeholder="10 अंकों का पासवर्ड टाइप करें" />
-      <br />
-      <button class="button" id="submitPassword">जमा करें</button>
-      <br />
-      <button class="button" id="changePassword" style="background:#444;">🔁 पासवर्ड बदलें</button>
+    <div id="passwordBox">
+      <input type="password" id="adminPassword" placeholder="🔑 10 अंकों का पासवर्ड लिखें" maxlength="10" />
+      <button id="submitPassword">प्रवेश करें</button>
     </div>
   </main>
 
-  <footer>© 2026 Anjali Quiz Bank | Designed with ❤️ by You</footer>
+  <footer>© 2026 Anjali Quiz Bank | Voice Powered by अंजली 💬</footer>
 
   <script>
-    /*****************************************************
-     * 🎤 अंजली की प्रेरणादायक आवाज़
-     *****************************************************/
-    function speak(text) {
+    // 🎙️ अंजली की स्वागत आवाज़
+    window.addEventListener("DOMContentLoaded", () => {
+      const message = "नमस्ते विद्यार्थी, अंजली क्विज़ बैंक में आपका स्वागत है। चलिए मिलकर सीखते हैं और आगे बढ़ते हैं!";
       const synth = window.speechSynthesis;
-      const speakNow = () => {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = "hi-IN";
-        utter.pitch = 1.05;
-        utter.rate = 0.9;
-        utter.volume = 1;
+      const speak = () => {
         const voices = synth.getVoices();
-        const femaleVoice = voices.find(v =>
-          v.lang.startsWith("hi") || v.name.toLowerCase().includes("female") || v.name.includes("Google हिन्दी")
-        );
-        utter.voice = femaleVoice || voices[0];
-        synth.speak(utter);
+        if (voices.length > 0) {
+          const female = voices.find(v => v.lang.startsWith("hi") || v.name.toLowerCase().includes("female")) || voices[0];
+          const utter = new SpeechSynthesisUtterance(message);
+          utter.voice = female;
+          utter.pitch = 1.1;
+          utter.rate = 0.9;
+          synth.speak(utter);
+        }
       };
-      if (synth.getVoices().length === 0) synth.onvoiceschanged = speakNow;
-      else speakNow();
-    }
+      if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = speak;
+      else speak();
+    });
 
-    /*****************************************************
-     * 🔐 पासवर्ड सिस्टम (SHA-256 Secure)
-     *****************************************************/
-    async function hashPassword(password) {
-      const msgBuffer = new TextEncoder().encode(password);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-    }
-
-    async function checkPassword(input) {
-      const savedHash = localStorage.getItem("anjali_password_hash");
-      const inputHash = await hashPassword(input);
-      return savedHash === inputHash;
-    }
-
+    // 🎓 Student Panel
     function goToStudent() {
-      speak("बहुत बढ़िया! स्टूडेंट पैनल खोला जा रहा है।");
       window.location.href = "student-panel/index.html";
     }
 
-    const passwordBox = document.getElementById("passwordBox");
-    const passwordInput = document.getElementById("passwordInput");
-    const passwordPrompt = document.getElementById("passwordPrompt");
-    const submitBtn = document.getElementById("submitPassword");
-    const changeBtn = document.getElementById("changePassword");
-
+    // ⚙️ Control Panel Access with Password
     function showPasswordBox() {
-      passwordBox.classList.remove("hidden");
-      const saved = localStorage.getItem("anjali_password_hash");
-
-      if (!saved) {
-        speak("कृपया अपना दस अंकों का पासवर्ड सेट करें।");
-        passwordPrompt.textContent = "पहली बार लॉगिन — पासवर्ड सेट करें 🔑";
-        submitBtn.onclick = async () => {
-          const pass = passwordInput.value.trim();
-          if (pass.length !== 10 || isNaN(pass)) {
-            alert("⚠️ पासवर्ड 10 अंकों का होना चाहिए (केवल संख्या)।");
-            return;
-          }
-          const hash = await hashPassword(pass);
-          localStorage.setItem("anjali_password_hash", hash);
-          speak("आपका पासवर्ड सुरक्षित कर लिया गया है।");
-          alert("✅ पासवर्ड सेट हो गया!");
-          location.reload();
-        };
-      } else {
-        speak("कृपया पासवर्ड दर्ज करें।");
-        passwordPrompt.textContent = "कृपया पासवर्ड दर्ज करें 🔒";
-        submitBtn.onclick = async () => {
-          const pass = passwordInput.value.trim();
-          const valid = await checkPassword(pass);
-          if (valid) {
-            speak("पासवर्ड सही है, कंट्रोल पैनल खोला जा रहा है।");
-            alert("✅ पासवर्ड सत्यापित हुआ!");
-            window.location.href = "control-panel/index.html";
-          } else {
-            speak("गलत पासवर्ड है, कृपया पुनः प्रयास करें।");
-            alert("❌ गलत पासवर्ड!");
-          }
-        };
-      }
+      document.getElementById("passwordBox").style.display = "block";
     }
 
-    changeBtn.onclick = async () => {
-      const oldPass = prompt("पुराना पासवर्ड दर्ज करें:");
-      if (!oldPass) return;
-      const match = await checkPassword(oldPass);
-      if (!match) {
-        speak("पुराना पासवर्ड गलत है।");
-        alert("❌ पुराना पासवर्ड गलत है।");
-        return;
-      }
-      const newPass = prompt("नया 10 अंकों का पासवर्ड दर्ज करें:");
-      if (!newPass || newPass.length !== 10 || isNaN(newPass)) {
-        alert("⚠️ नया पासवर्ड 10 अंकों का होना चाहिए।");
-        return;
-      }
-      const newHash = await hashPassword(newPass);
-      localStorage.setItem("anjali_password_hash", newHash);
-      speak("नया पासवर्ड सुरक्षित कर लिया गया है।");
-      alert("✅ पासवर्ड बदल गया!");
-    };
+    document.getElementById("submitPassword").addEventListener("click", () => {
+      const entered = document.getElementById("adminPassword").value.trim();
+      const stored = localStorage.getItem("anjali_admin_pass");
 
-    /*****************************************************
-     * 🌸 वॉयस वेलकम – क्लिक के साथ स्वतः सक्रिय
-     *****************************************************/
-    window.addEventListener("DOMContentLoaded", () => {
-      const motivation = document.getElementById("motivationText").innerText;
-      function startVoiceOnce() {
-        speak(motivation);
-        document.removeEventListener("click", startVoiceOnce);
+      if (!stored) {
+        if (entered.length === 10) {
+          localStorage.setItem("anjali_admin_pass", entered);
+          alert("✅ पासवर्ड सेट हो गया! अब आप Control Panel में प्रवेश कर सकते हैं।");
+          window.location.href = "control-panel/index.html";
+        } else {
+          alert("⚠️ कृपया 10 अंकों का पासवर्ड लिखें।");
+        }
+      } else {
+        if (entered === stored) {
+          window.location.href = "control-panel/index.html";
+        } else {
+          alert("❌ गलत पासवर्ड! पुनः प्रयास करें।");
+        }
       }
-      document.addEventListener("click", startVoiceOnce);
     });
   </script>
 </body>
