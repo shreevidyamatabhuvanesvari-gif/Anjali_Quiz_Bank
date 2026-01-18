@@ -1,6 +1,6 @@
 /*****************************************************
- * 📘 Anjali Quiz Bank – upload.js (GitHub Fixed Final)
- * ✅ Smart Parsing | ✅ Request Counter Reset | ✅ Selective Delete | ✅ GitHub Upload (Fixed)
+ * 📘 Anjali Quiz Bank – upload.js (Final Tested & Corrected)
+ * ✅ Smart Parser | ✅ Selective Delete | ✅ GitHub Upload Fixed | ✅ Request Counter Reset
  *****************************************************/
 
 const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";
@@ -15,7 +15,7 @@ let requestCount = parseInt(localStorage.getItem("anjali_request_count") || "0")
 let lastReset = Number(localStorage.getItem("anjali_request_reset")) || Date.now();
 
 /*****************************************************
- * 🔹 Request Counter System
+ * 🔹 Request Counter
  *****************************************************/
 function initRequestCounter() {
   const now = Date.now();
@@ -51,7 +51,7 @@ function updateRequestCounter() {
 }
 
 /*****************************************************
- * 🔹 Smart Parser
+ * 🔹 Smart Question Parser (Q:, Q), Ans:, Exp:)
  *****************************************************/
 function parseMCQ(text) {
   const questions = [];
@@ -76,7 +76,7 @@ function parseMCQ(text) {
 }
 
 /*****************************************************
- * 🔹 Local Data Handling
+ * 🔹 Local Data
  *****************************************************/
 async function getLocalData() {
   const data = localStorage.getItem("anjaliTempData");
@@ -158,57 +158,47 @@ document.getElementById("viewBtn").addEventListener("click", async () => {
 
   qList.innerHTML = html;
   qList.classList.remove("hidden");
+
+  bindDeleteHandler();
 });
 
 /*****************************************************
  * 🔹 Selective Delete
  *****************************************************/
-document.getElementById("deleteBtn").addEventListener("click", async () => {
-  const subject = document.getElementById("subject").value;
-  const subtopic = document.getElementById("subtopic").value;
-  const saved = await getLocalData();
+function bindDeleteHandler() {
+  const delBtn = document.getElementById("deleteBtn");
+  delBtn.onclick = async () => {
+    const subject = document.getElementById("subject").value;
+    const subtopic = document.getElementById("subtopic").value;
+    const saved = await getLocalData();
 
-  if (!subject || !subtopic)
-    return alert("⚠️ कृपया पहले विषय और उपविषय चुनें।");
-
-  const checks = Array.from(document.querySelectorAll(".qcheck:checked"));
-  if (checks.length === 0) {
-    if (confirm("❓ कोई प्रश्न चयनित नहीं है। क्या आप सभी हटाना चाहते हैं?")) {
-      saved[subject][subtopic] = { mcq: [], one_liner: [] };
-      saveLocalData(saved);
-      alert("🗑️ सभी प्रश्न हटा दिए गए!");
+    const checks = Array.from(document.querySelectorAll(".qcheck:checked"));
+    if (checks.length === 0) {
+      if (confirm("❓ कोई प्रश्न चयनित नहीं है। क्या आप सभी हटाना चाहते हैं?")) {
+        saved[subject][subtopic] = { mcq: [], one_liner: [] };
+        saveLocalData(saved);
+        alert("🗑️ सभी प्रश्न हटा दिए गए!");
+        document.getElementById("viewBtn").click();
+      }
+      return;
     }
-    return;
-  }
 
-  checks.forEach(c => {
-    const type = c.dataset.type;
-    const index = parseInt(c.dataset.index);
-    if (saved[subject]?.[subtopic]?.[type]) {
-      saved[subject][subtopic][type].splice(index, 1);
-    }
-  });
+    checks.forEach(c => {
+      const type = c.dataset.type;
+      const index = parseInt(c.dataset.index);
+      if (saved[subject]?.[subtopic]?.[type]) {
+        saved[subject][subtopic][type].splice(index, 1);
+      }
+    });
 
-  saveLocalData(saved);
-  alert(`🗑️ ${checks.length} चयनित प्रश्न हटा दिए गए!`);
-  document.getElementById("viewBtn").click();
-});
-
-/*****************************************************
- * 🔹 Subject Name Map Helper
- *****************************************************/
-function subjectNameFromMap(fileName) {
-  const map = {
-    "general_knowledge.json": "General Knowledge",
-    "general_hindi.json": "General Hindi",
-    "numerical_ability.json": "Numerical & Mental Ability",
-    "reasoning.json": "Mental Aptitude / Reasoning"
+    saveLocalData(saved);
+    alert(`🗑️ ${checks.length} चयनित प्रश्न हटा दिए गए!`);
+    document.getElementById("viewBtn").click();
   };
-  return map[fileName] || fileName;
 }
 
 /*****************************************************
- * 🔹 Upload to GitHub
+ * 🔹 Upload to GitHub (✅ Corrected)
  *****************************************************/
 document.getElementById("uploadBtn").addEventListener("click", async () => {
   const data = await getLocalData();
@@ -231,7 +221,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
 });
 
 /*****************************************************
- * 🔹 Upload to GitHub Core Function
+ * 🔹 Upload Core Function (Fixed)
  *****************************************************/
 async function uploadToGitHub(fileName, content) {
   updateRequestCounter();
@@ -245,10 +235,9 @@ async function uploadToGitHub(fileName, content) {
   const resJson = response.ok ? await response.json() : {};
   const sha = resJson.sha || null;
 
-  const subjectName = subjectNameFromMap(fileName);
   const payload = {
     message: `📤 Updated ${fileName} from Anjali Control Panel`,
-    content: btoa(JSON.stringify({ subject: subjectName, subtopics: content }, null, 2)),
+    content: btoa(JSON.stringify(content, null, 2)), // ✅ FIXED
     branch: GITHUB_BRANCH,
     sha
   };
@@ -269,14 +258,11 @@ async function uploadToGitHub(fileName, content) {
 }
 
 /*****************************************************
- * 🔹 Token Box
+ * 🔹 Token + Counter Init
  *****************************************************/
 document.getElementById("tokenBox").addEventListener("change", e => {
   GITHUB_TOKEN = e.target.value.trim();
   if (GITHUB_TOKEN) alert("✅ Token सेट कर दिया गया!");
 });
 
-/*****************************************************
- * 🔹 Initialize
- *****************************************************/
 window.addEventListener("DOMContentLoaded", initRequestCounter);
