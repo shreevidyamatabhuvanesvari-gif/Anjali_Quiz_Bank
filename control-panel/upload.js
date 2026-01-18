@@ -1,24 +1,19 @@
 /*****************************************************
- * 📘 Anjali Quiz Bank – upload.js (Smart Upload Fix v2)
- * ✅ Token Save + Auto Reset + Voice Feedback + Stable Upload
+ * 📘 Anjali Quiz Bank – upload.js (FINAL SYNCED VERSION)
+ * ✅ Local Save + View + Delete + GitHub Upload + Auto Reset
  *****************************************************/
 
-// 🔹 अपनी जानकारी यहाँ डालें
-const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";   // अपना GitHub यूज़रनेम
-const GITHUB_REPO = "Anjali_Quiz_Bank";           // Repo का नाम
-const GITHUB_BRANCH = "main";                     // Branch
-let GITHUB_TOKEN = localStorage.getItem("anjali_github_token") || "";
+const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";
+const GITHUB_REPO = "Anjali_Quiz_Bank";
+const GITHUB_BRANCH = "main";
+let GITHUB_TOKEN = "";
 
-// 🔹 Repo में JSON का Base Path
 const DATA_PATH = "data/";
-
-/*****************************************************
- * 🔹 Request Counter System (Auto Reset प्रति घंटा)
- *****************************************************/
 const REQUEST_LIMIT = 60;
 let requestCount = parseInt(localStorage.getItem("anjali_request_count") || "0");
 let lastReset = Number(localStorage.getItem("anjali_request_reset")) || Date.now();
 
+/************* 🔹 Request Counter System *************/
 function initRequestCounter() {
   const now = Date.now();
   const oneHour = 60 * 60 * 1000;
@@ -36,12 +31,11 @@ function initRequestCounter() {
   counter.style.bottom = "10px";
   counter.style.right = "10px";
   counter.style.background = "#eef6ff";
-  counter.style.color = "#2d3436";
+  counter.style.color = "#333";
   counter.style.border = "1px solid #ccc";
   counter.style.borderRadius = "8px";
   counter.style.padding = "8px 12px";
   counter.style.fontSize = "14px";
-  counter.style.boxShadow = "0 0 6px rgba(0,0,0,0.1)";
   counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
   document.body.appendChild(counter);
 }
@@ -49,123 +43,95 @@ function initRequestCounter() {
 function updateRequestCounter() {
   requestCount++;
   localStorage.setItem("anjali_request_count", requestCount.toString());
-  const counter = document.getElementById("requestCounter");
-  if (counter)
-    counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
+  document.getElementById("requestCounter").textContent =
+    `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
 }
 
-/*****************************************************
- * 🔹 अंजली की आवाज़ बोलने के लिए Function
- *****************************************************/
-function anjaliSpeak(text) {
-  const synth = window.speechSynthesis;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "hi-IN";
-  utter.pitch = 1;
-  utter.rate = 0.9;
-  const voices = synth.getVoices();
-  utter.voice =
-    voices.find((v) => v.name.includes("Google हिन्दी")) ||
-    voices.find((v) => v.lang.startsWith("hi")) ||
-    voices[0];
-  synth.speak(utter);
-}
+/************* 🔹 Local Save Function *************/
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+  const q = document.getElementById("questionText").value.trim();
+  const a = document.getElementById("optA").value.trim();
+  const b = document.getElementById("optB").value.trim();
+  const c = document.getElementById("optC").value.trim();
+  const d = document.getElementById("optD").value.trim();
+  const correct = document.getElementById("correctAns").value.trim();
+  const exp = document.getElementById("explanation").value.trim();
 
-/*****************************************************
- * 🔹 लोकल डेटा लोड करना
- *****************************************************/
-async function getLocalData() {
-  const data = localStorage.getItem("anjaliTempData");
-  if (!data) {
-    anjaliSpeak("कोई नया प्रश्न डेटा नहीं मिला!");
-    alert("⚠️ कोई नया प्रश्न डेटा नहीं मिला!");
-    return null;
-  }
-  return JSON.parse(data);
-}
-
-/*****************************************************
- * 🔹 GitHub से JSON फाइल fetch करना
- *****************************************************/
-async function fetchFromGitHub(fileName) {
-  updateRequestCounter();
-
-  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
-  const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
-
-  const response = await fetch(url, { headers });
-
-  if (response.status === 404) {
-    console.warn(`⚠️ नई फाइल बनाई जाएगी: ${fileName}`);
-    return { content: {}, sha: null };
+  if (!subject || !subtopic || !q) {
+    alert("⚠️ कृपया विषय, उप-विषय और प्रश्न भरें।");
+    return;
   }
 
-  if (!response.ok) {
-    anjaliSpeak("GitHub से डेटा लाने में समस्या हुई!");
-    alert(`❌ GitHub Fetch Error: ${response.statusText}`);
-    throw new Error(response.statusText);
+  const data = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+  if (!data[subject]) data[subject] = {};
+  if (!data[subject][subtopic]) data[subject][subtopic] = { mcq: [], one_liner: [] };
+
+  const question = { q, a, b, c, d, correct, exp };
+  data[subject][subtopic].mcq.push(question);
+  localStorage.setItem("anjaliTempData", JSON.stringify(data, null, 2));
+  alert("✅ प्रश्न लोकल स्टोरेज में सेव हुआ!");
+});
+
+/************* 🔹 View Questions *************/
+document.getElementById("viewBtn").addEventListener("click", () => {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+  const qList = document.getElementById("questionList");
+  qList.style.display = "block";
+
+  const data = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+  const questions = data[subject]?.[subtopic]?.mcq || [];
+
+  if (questions.length === 0) {
+    qList.innerHTML = "<i>❌ कोई प्रश्न नहीं मिला।</i>";
+    return;
   }
 
-  const json = await response.json();
-  const decoded = atob(json.content);
-  return { content: JSON.parse(decoded), sha: json.sha };
-}
+  qList.innerHTML = questions.map((q, i) => `
+    <div><b>${i + 1}. ${q.q}</b><br>
+    A) ${q.a}<br>B) ${q.b}<br>C) ${q.c}<br>D) ${q.d}<br>
+    ✔ ${q.correct}<br><i>${q.exp}</i><hr></div>
+  `).join("");
+});
 
-/*****************************************************
- * 🔹 लोकल और रिमोट JSON को Merge करना
- *****************************************************/
-function mergeData(remoteData, localData, subjectName) {
-  const updated = remoteData || { subject: subjectName, subtopics: {} };
-
-  for (const sub in localData[subjectName]) {
-    const subData = localData[subjectName][sub];
-    if (!updated.subtopics[sub]) updated.subtopics[sub] = { mcq: [], one_liner: [] };
-
-    updated.subtopics[sub].mcq.push(...subData.mcq);
-    updated.subtopics[sub].one_liner.push(...subData.one_liner);
+/************* 🔹 Delete Selected Questions *************/
+document.getElementById("deleteBtn").addEventListener("click", () => {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+  if (!subject || !subtopic) {
+    alert("⚠️ कृपया विषय और उप-विषय चुनें।");
+    return;
   }
 
-  return updated;
-}
+  const confirmBox = document.getElementById("confirmBox");
+  document.getElementById("confirmMessage").textContent =
+    `"${subject}" → "${subtopic}" के सभी प्रश्न हटाने हैं?`;
+  confirmBox.style.display = "flex";
 
-/*****************************************************
- * 🔹 JSON GitHub पर अपलोड करना
- *****************************************************/
-async function uploadToGitHub(fileName, data, sha = null) {
-  updateRequestCounter();
+  document.getElementById("confirmYes").onclick = () => {
+    confirmBox.style.display = "none";
+    const data = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+    if (data[subject] && data[subject][subtopic]) {
+      data[subject][subtopic] = { mcq: [], one_liner: [] };
+      localStorage.setItem("anjaliTempData", JSON.stringify(data));
+      alert("🗑️ प्रश्न हटा दिए गए।");
+    }
+  };
 
-  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
-  const headers = { "Content-Type": "application/json" };
-  if (GITHUB_TOKEN) headers["Authorization"] = `token ${GITHUB_TOKEN}`;
+  document.getElementById("confirmNo").onclick = () => {
+    confirmBox.style.display = "none";
+  };
+});
 
-  const message = `📤 Updated ${fileName} from Anjali Control Panel`;
-  const content = btoa(JSON.stringify(data, null, 2));
-
-  const payload = { message, content, branch: GITHUB_BRANCH, sha: sha };
-
-  const res = await fetch(url, {
-    method: "PUT",
-    headers,
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    anjaliSpeak("अपलोड विफल हुआ, कृपया पुनः प्रयास करें।");
-    alert(`❌ अपलोड विफल (${fileName}): ${text}`);
-    throw new Error(text);
+/************* 🔹 Upload to GitHub *************/
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  const localData = JSON.parse(localStorage.getItem("anjaliTempData") || "{}");
+  if (!Object.keys(localData).length) {
+    alert("⚠️ कोई लोकल डेटा नहीं मिला!");
+    return;
   }
-
-  anjaliSpeak(`${fileName} सफलतापूर्वक अपलोड हुआ!`);
-  console.log(`✅ ${fileName} सफलतापूर्वक अपलोड हुआ!`);
-}
-
-/*****************************************************
- * 🔹 मुख्य Upload Function
- *****************************************************/
-async function uploadAll() {
-  const localData = await getLocalData();
-  if (!localData) return;
 
   const fileMap = {
     "General Knowledge": "general_knowledge.json",
@@ -174,45 +140,36 @@ async function uploadAll() {
     "Mental Aptitude / Reasoning": "reasoning.json",
   };
 
-  for (const subjectName in localData) {
-    const fileName = fileMap[subjectName];
+  for (const subject in localData) {
+    const fileName = fileMap[subject];
     if (!fileName) continue;
 
-    console.log(`📥 Fetching: ${fileName}`);
-    const { content: remoteContent, sha } = await fetchFromGitHub(fileName);
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${DATA_PATH}${fileName}`;
+    const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
 
-    const merged = mergeData(remoteContent, localData, subjectName);
+    const response = await fetch(url, { headers });
+    const json = response.status === 404 ? { content: "e30=", sha: null } : await response.json();
+    const content = JSON.parse(atob(json.content));
+    const updated = { ...content, ...localData[subject] };
 
-    console.log(`📤 Uploading: ${fileName}`);
-    await uploadToGitHub(fileName, merged, sha);
-  }
-
-  localStorage.removeItem("anjaliTempData");
-  anjaliSpeak("सभी प्रश्न GitHub पर सफलतापूर्वक अपलोड हो गए हैं!");
-  alert("✅ सभी प्रश्न GitHub पर सफलतापूर्वक अपलोड किए गए!");
-}
-
-/*****************************************************
- * 🔹 Control Panel Initialization
- *****************************************************/
-document.addEventListener("DOMContentLoaded", () => {
-  initRequestCounter();
-
-  // ✅ Upload Button
-  const uploadBtn = document.getElementById("uploadBtn");
-  if (uploadBtn) uploadBtn.addEventListener("click", uploadAll);
-
-  // ✅ Token Box (सिर्फ एक)
-  const tokenBox = document.getElementById("tokenBox");
-  if (tokenBox) {
-    tokenBox.value = GITHUB_TOKEN;
-    tokenBox.onchange = () => {
-      GITHUB_TOKEN = tokenBox.value.trim();
-      if (GITHUB_TOKEN) {
-        localStorage.setItem("anjali_github_token", GITHUB_TOKEN);
-        anjaliSpeak("Token सेट कर दिया गया!");
-        alert("✅ Token सेट कर दिया गया!");
-      }
+    const payload = {
+      message: `📤 Updated ${fileName}`,
+      content: btoa(JSON.stringify(updated, null, 2)),
+      branch: GITHUB_BRANCH,
+      sha: json.sha,
     };
+
+    await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
   }
+
+  alert("✅ सभी प्रश्न सफलतापूर्वक GitHub पर अपलोड हुए!");
 });
+
+document.addEventListener("DOMContentLoaded", initRequestCounter);
