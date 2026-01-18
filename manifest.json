@@ -1,0 +1,22 @@
+{
+  "name": "Anjali Quiz Bank",
+  "short_name": "Quiz Bank",
+  "description": "Anjali Quiz Bank - Study, Quiz, and Learn with Voice Assistant Anjali.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b2d2d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
