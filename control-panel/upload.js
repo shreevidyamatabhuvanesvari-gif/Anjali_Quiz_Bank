@@ -1,6 +1,6 @@
 /*****************************************************
- * 📘 Anjali Quiz Bank – upload.js (Final Tested & Corrected)
- * ✅ Smart Parser | ✅ Selective Delete | ✅ GitHub Upload Fixed | ✅ Request Counter Reset
+ * 📘 Anjali Quiz Bank – upload.js (Final Stable Version)
+ * ✅ Smart Parsing | ✅ Request Counter Reset | ✅ GitHub Upload | ✅ Selective Delete
  *****************************************************/
 
 const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";
@@ -8,7 +8,7 @@ const GITHUB_REPO = "Anjali_Quiz_Bank";
 const GITHUB_BRANCH = "main";
 let GITHUB_TOKEN = "";
 
-const DATA_PATH = "data/";
+const DATA_PATH = "../data/";
 
 const REQUEST_LIMIT = 60;
 let requestCount = parseInt(localStorage.getItem("anjali_request_count") || "0");
@@ -20,14 +20,12 @@ let lastReset = Number(localStorage.getItem("anjali_request_reset")) || Date.now
 function initRequestCounter() {
   const now = Date.now();
   const oneHour = 60 * 60 * 1000;
-
   if (now - lastReset > oneHour) {
     requestCount = 0;
     lastReset = now;
     localStorage.setItem("anjali_request_count", "0");
     localStorage.setItem("anjali_request_reset", now.toString());
   }
-
   const counter = document.createElement("div");
   counter.id = "requestCounter";
   counter.style.position = "fixed";
@@ -35,13 +33,12 @@ function initRequestCounter() {
   counter.style.right = "10px";
   counter.style.background = "#eef6ff";
   counter.style.border = "1px solid #ccc";
-  counter.style.padding = "6px 10px";
   counter.style.borderRadius = "8px";
+  counter.style.padding = "6px 10px";
   counter.style.fontSize = "13px";
   counter.textContent = `🔄 Requests Used: ${requestCount}/${REQUEST_LIMIT}`;
   document.body.appendChild(counter);
 }
-
 function updateRequestCounter() {
   requestCount++;
   localStorage.setItem("anjali_request_count", requestCount.toString());
@@ -51,13 +48,12 @@ function updateRequestCounter() {
 }
 
 /*****************************************************
- * 🔹 Smart Question Parser (Q:, Q), Ans:, Exp:)
+ * 🔹 Smart Parser (Q:/Q) Support
  *****************************************************/
 function parseMCQ(text) {
   const questions = [];
   const lines = text.split("\n").map(l => l.trim()).filter(l => l);
   let q = {};
-
   lines.forEach(line => {
     if (/^Q[\):]/i.test(line)) q.q = line.replace(/^Q[\):]/i, "").trim();
     else if (line.startsWith("A)")) q.a = line.slice(2).trim();
@@ -71,18 +67,16 @@ function parseMCQ(text) {
       q = {};
     }
   });
-
   return questions;
 }
 
 /*****************************************************
- * 🔹 Local Data
+ * 🔹 Local Data Handling
  *****************************************************/
 async function getLocalData() {
   const data = localStorage.getItem("anjaliTempData");
   return data ? JSON.parse(data) : {};
 }
-
 function saveLocalData(data) {
   localStorage.setItem("anjaliTempData", JSON.stringify(data));
 }
@@ -116,7 +110,7 @@ document.getElementById("saveBtn").addEventListener("click", () => {
 });
 
 /*****************************************************
- * 🔹 View Questions (Selectable)
+ * 🔹 View Questions
  *****************************************************/
 document.getElementById("viewBtn").addEventListener("click", async () => {
   const subject = document.getElementById("subject").value;
@@ -158,47 +152,44 @@ document.getElementById("viewBtn").addEventListener("click", async () => {
 
   qList.innerHTML = html;
   qList.classList.remove("hidden");
-
-  bindDeleteHandler();
 });
 
 /*****************************************************
  * 🔹 Selective Delete
  *****************************************************/
-function bindDeleteHandler() {
-  const delBtn = document.getElementById("deleteBtn");
-  delBtn.onclick = async () => {
-    const subject = document.getElementById("subject").value;
-    const subtopic = document.getElementById("subtopic").value;
-    const saved = await getLocalData();
+document.getElementById("deleteBtn").addEventListener("click", async () => {
+  const subject = document.getElementById("subject").value;
+  const subtopic = document.getElementById("subtopic").value;
+  const saved = await getLocalData();
 
-    const checks = Array.from(document.querySelectorAll(".qcheck:checked"));
-    if (checks.length === 0) {
-      if (confirm("❓ कोई प्रश्न चयनित नहीं है। क्या आप सभी हटाना चाहते हैं?")) {
-        saved[subject][subtopic] = { mcq: [], one_liner: [] };
-        saveLocalData(saved);
-        alert("🗑️ सभी प्रश्न हटा दिए गए!");
-        document.getElementById("viewBtn").click();
-      }
-      return;
+  if (!subject || !subtopic)
+    return alert("⚠️ कृपया पहले विषय और उपविषय चुनें।");
+
+  const checks = Array.from(document.querySelectorAll(".qcheck:checked"));
+  if (checks.length === 0) {
+    if (confirm("❓ कोई प्रश्न चयनित नहीं है। क्या आप सभी हटाना चाहते हैं?")) {
+      saved[subject][subtopic] = { mcq: [], one_liner: [] };
+      saveLocalData(saved);
+      alert("🗑️ सभी प्रश्न हटा दिए गए!");
     }
+    return;
+  }
 
-    checks.forEach(c => {
-      const type = c.dataset.type;
-      const index = parseInt(c.dataset.index);
-      if (saved[subject]?.[subtopic]?.[type]) {
-        saved[subject][subtopic][type].splice(index, 1);
-      }
-    });
+  checks.forEach(c => {
+    const type = c.dataset.type;
+    const index = parseInt(c.dataset.index);
+    if (saved[subject]?.[subtopic]?.[type]) {
+      saved[subject][subtopic][type].splice(index, 1);
+    }
+  });
 
-    saveLocalData(saved);
-    alert(`🗑️ ${checks.length} चयनित प्रश्न हटा दिए गए!`);
-    document.getElementById("viewBtn").click();
-  };
-}
+  saveLocalData(saved);
+  alert(`🗑️ ${checks.length} चयनित प्रश्न हटा दिए गए!`);
+  document.getElementById("viewBtn").click();
+});
 
 /*****************************************************
- * 🔹 Upload to GitHub (✅ Corrected)
+ * 🔹 GitHub Upload
  *****************************************************/
 document.getElementById("uploadBtn").addEventListener("click", async () => {
   const data = await getLocalData();
@@ -221,7 +212,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
 });
 
 /*****************************************************
- * 🔹 Upload Core Function (Fixed)
+ * 🔹 Upload Function
  *****************************************************/
 async function uploadToGitHub(fileName, content) {
   updateRequestCounter();
@@ -236,11 +227,11 @@ async function uploadToGitHub(fileName, content) {
   const sha = resJson.sha || null;
 
   const payload = {
-  message: `📤 Updated ${fileName} from Anjali Control Panel`,
-  content: btoa(JSON.stringify(content, null, 2)),
-  branch: GITHUB_BRANCH,
-  sha
-};
+    message: `📤 Updated ${fileName} from Anjali Control Panel`,
+    content: btoa(JSON.stringify(content, null, 2)),
+    branch: GITHUB_BRANCH,
+    sha
+  };
 
   const putRes = await fetch(url, {
     method: "PUT",
@@ -250,19 +241,15 @@ async function uploadToGitHub(fileName, content) {
 
   if (!putRes.ok) {
     const text = await putRes.text();
-    alert(`❌ Upload Failed: ${fileName}\n${text}`);
-    throw new Error(text);
-  }
-
-  console.log(`✅ ${fileName} uploaded successfully.`);
+    alert(`❌ Upload Failed: ${text}`);
+  } else console.log(`✅ ${fileName} uploaded successfully.`);
 }
 
 /*****************************************************
- * 🔹 Token + Counter Init
+ * 🔹 Token Event + Init
  *****************************************************/
 document.getElementById("tokenBox").addEventListener("change", e => {
   GITHUB_TOKEN = e.target.value.trim();
   if (GITHUB_TOKEN) alert("✅ Token सेट कर दिया गया!");
 });
-
 window.addEventListener("DOMContentLoaded", initRequestCounter);
