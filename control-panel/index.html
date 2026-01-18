@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📘 Anjali Quiz Bank – Control Panel</title>
-
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚙️ Anjali Quiz Bank – Control Panel</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <header>📘 Anjali Quiz Bank – Control Panel</header>
+  <header>⚙️ Anjali Quiz Bank – Control Panel</header>
 
   <div class="container">
     <label for="subject">📘 विषय चुनें:</label>
@@ -18,23 +16,23 @@
     <label for="subtopic">📗 उप-विषय चुनें:</label>
     <select id="subtopic"><option value="">-- उप-विषय चुनें --</option></select>
 
-    <label for="type">📝 प्रश्न का प्रकार:</label>
+    <label for="type">📝 प्रश्न प्रकार:</label>
     <select id="type">
       <option value="mcq">📘 MCQ (बहुविकल्पीय प्रश्न)</option>
-      <option value="one-liner">📌 One-Liner</option>
+      <option value="one-liner">📌 One-Liner प्रश्न</option>
     </select>
 
-    <label for="questionData">✍️ प्रश्न दर्ज करें:</label>
-    <textarea id="questionData" rows="9" placeholder="Q: उदाहरण प्रश्न...
-A) विकल्प 1
-B) विकल्प 2
-C) विकल्प 3
-D) विकल्प 4
+    <label for="questionData">प्रश्न दर्ज करें:</label>
+    <textarea id="questionData" rows="8" placeholder="Q: मोहनजोदड़ो किस नदी के किनारे स्थित था?
+A) गंगा
+B) यमुना
+C) सिंधु
+D) सरस्वती
 Ans: C
-Exp: व्याख्या यहाँ लिखें।"></textarea>
+Exp: मोहनजोदड़ो सिंधु नदी के तट पर स्थित था।"></textarea>
 
     <div class="btn-group">
-      <button id="saveBtn">💾 प्रश्न सेव करें</button>
+      <button id="saveBtn">💾 सेव करें</button>
       <button id="viewBtn">📄 प्रश्न देखें</button>
       <button id="deleteBtn" class="danger">🗑️ चयनित प्रश्न हटाएँ</button>
       <button id="uploadBtn" class="success">⬆️ Upload to GitHub</button>
@@ -45,61 +43,8 @@ Exp: व्याख्या यहाँ लिखें।"></textarea>
     <input type="password" id="tokenBox" placeholder="🔑 यदि Token है, यहाँ लिखें (optional)" />
   </div>
 
-  <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
+  <footer>© 2026 Anjali Quiz Bank | Admin Panel</footer>
 
-  <script>
-    /*****************************************************
-     * 🔹 विषयों और उपविषयों को Auto Load System
-     *****************************************************/
-    const dataFiles = [
-      "../data/general_knowledge.json",
-      "../data/general_hindi.json",
-      "../data/numerical_ability.json",
-      "../data/reasoning.json"
-    ];
-
-    const allData = {};
-
-    async function loadAllSubjects() {
-      for (let file of dataFiles) {
-        try {
-          const res = await fetch(file);
-          const json = await res.json();
-          allData[json.subject] = json.subtopics;
-        } catch (e) {
-          console.warn("⚠️ डेटा लोड करने में समस्या:", file);
-        }
-      }
-      populateSubjects();
-    }
-
-    const subjectSelect = document.getElementById("subject");
-    const subtopicSelect = document.getElementById("subtopic");
-
-    function populateSubjects() {
-      subjectSelect.innerHTML = `<option value="">-- विषय चुनें --</option>`;
-      Object.keys(allData).forEach(subject => {
-        const opt = document.createElement("option");
-        opt.value = subject;
-        opt.textContent = subject;
-        subjectSelect.appendChild(opt);
-      });
-    }
-
-    subjectSelect.addEventListener("change", () => {
-      const subs = allData[subjectSelect.value] || {};
-      subtopicSelect.innerHTML = `<option value="">-- उप-विषय चुनें --</option>`;
-      Object.keys(subs).forEach(st => {
-        const opt = document.createElement("option");
-        opt.value = st;
-        opt.textContent = st;
-        subtopicSelect.appendChild(opt);
-      });
-    });
-
-    window.addEventListener("DOMContentLoaded", loadAllSubjects);
-  </script>
-
-  <script defer src="upload.js"></script>
+  <script src="upload.js" defer></script>
 </body>
 </html>
