@@ -1,176 +1,78 @@
-/* 📘 Anjali Quiz Bank – Control Panel Styles */
-
 body {
-  font-family: system-ui, sans-serif;
-  background: #f6f6ff;
+  font-family: "Poppins", sans-serif;
+  background: #fefefe;
   margin: 0;
-  padding: 0;
+  color: #222;
 }
-
 header {
   background: #8b2d2d;
-  color: #fff;
+  color: white;
+  padding: 18px;
   text-align: center;
-  padding: 12px;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
-
 .container {
-  max-width: 800px;
-  margin: 20px auto;
+  max-width: 720px;
+  margin: 30px auto;
   background: #fff;
-  border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-
 label {
+  display: block;
+  margin: 15px 0 5px;
   font-weight: bold;
   color: #8b2d2d;
-  display: block;
-  margin-top: 12px;
 }
-
-select, textarea, button, input {
+select, textarea, input[type="password"] {
   width: 100%;
   padding: 10px;
-  margin-top: 6px;
-  border-radius: 6px;
+  font-size: 15px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 16px;
+  box-sizing: border-box;
 }
-
-textarea {
-  height: 180px;
-  resize: vertical;
-  font-family: monospace;
+.btn-group {
+  margin-top: 20px;
+  text-align: center;
 }
-
 button {
-  background: #8b2d2d;
-  color: white;
+  padding: 10px 20px;
+  margin: 8px;
+  font-size: 16px;
   font-weight: bold;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
-
-button:hover {
-  background: #a03737;
-}
-
-/* Delete (Danger) Button */
-button.danger {
-  background: #c0392b;
-  color: #fff;
-  font-weight: bold;
-  margin-top: 8px;
-}
-
-button.danger:hover {
-  background: #e74c3c;
-}
-
-.note {
-  background: #fff9e6;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  margin-top: 10px;
-  color: #555;
-  border-left: 4px solid #8b2d2d;
-}
-
-footer {
-  text-align: center;
-  padding: 10px;
-  font-size: 13px;
-  color: #777;
-}
-
-#requestCounter {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background: #eef6ff;
-  color: #2d3436;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-  z-index: 100;
-}
-
-/* 🔹 Custom Confirmation Box */
-#confirmBox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-#confirmBox.hidden {
-  display: none;
-}
-
-.confirm-content {
-  background: #fff;
+button:hover { transform: scale(1.05); }
+.success { background: #2d6a4f; color: #fff; }
+.danger { background: #c0392b; color: #fff; }
+#questionList {
+  margin-top: 25px;
+  text-align: left;
+  background: #fff9f9;
+  padding: 12px;
   border-radius: 10px;
-  padding: 20px 25px;
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #ddd;
 }
-
-.confirm-content h3 {
-  margin: 0;
-  color: #8b2d2d;
-  font-size: 20px;
+.hidden { display: none; }
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+.qitem {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
   margin-bottom: 10px;
 }
-
-.confirm-content p {
-  color: #333;
-  font-size: 16px;
-}
-
-.confirm-buttons {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-button.cancel {
-  background: #777;
-  color: white;
-  font-weight: bold;
-}
-
-button.cancel:hover {
-  background: #999;
-}
-
-.question-list {
-  margin-top: 12px;
-  padding: 10px;
-  background: #fffaf0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  max-height: 300px;
-  overflow-y: auto;
-  font-size: 15px;
-  line-height: 1.6;
-}
-.hidden {
-  display: none;
+.qitem input[type="checkbox"] {
+  margin-right: 10px;
 }
