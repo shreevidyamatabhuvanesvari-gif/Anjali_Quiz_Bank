@@ -1,93 +1,91 @@
 body {
+  font-family: "Poppins", sans-serif;
+  background: #fffdfa;
   margin: 0;
-  font-family: "Poppins", system-ui, sans-serif;
-  background: linear-gradient(135deg, #fff, #fef6f6);
   text-align: center;
-  color: #333;
+  color: #222;
 }
-
 header {
   background: #8b2d2d;
-  color: white;
-  padding: 16px;
+  color: #fff;
+  padding: 18px;
   font-size: 24px;
   font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
-
 .container {
-  margin-top: 40px;
+  margin: 30px auto;
+  max-width: 700px;
+  padding: 20px;
 }
-
-label {
-  display: block;
-  font-weight: bold;
-  margin-top: 15px;
+h2 {
+  color: #8b2d2d;
 }
-
+.anjali {
+  font-style: italic;
+  color: #444;
+  background: #fff3f3;
+  border-radius: 10px;
+  padding: 12px;
+}
 select {
-  padding: 8px;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 70%;
-  font-size: 16px;
+  font-size: 15px;
 }
-
-.modeBtn, .listenBtn {
-  background: #8b2d2d;
-  color: white;
+button {
+  padding: 10px 20px;
+  margin: 10px;
   border: none;
   border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 18px;
-  margin: 10px;
+  background: #8b2d2d;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: 0.3s;
 }
-
-.modeBtn:hover, .listenBtn:hover {
+button:hover {
   background: #a33a3a;
   transform: scale(1.05);
 }
-
-.hidden {
-  display: none;
-}
-
-#questionBox {
-  background: #fff5f5;
-  border-radius: 10px;
-  width: 80%;
-  margin: 30px auto;
+#quizBox {
+  margin-top: 30px;
+  text-align: left;
+  background: #fff;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  border: 1px solid #ddd;
 }
-
-#questionBox.stepModeActive {
-  width: 90%;
-  padding: 30px;
-  min-height: 280px;
-  font-size: 18px;
+#questionText {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
 }
-
-#optionsBox button {
-  display: block;
-  margin: 8px auto;
-  padding: 10px 18px;
-  width: 60%;
+#options div {
+  margin: 8px 0;
+  padding: 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #f0f0f0;
-  font-size: 16px;
+  background: #f8f8f8;
   cursor: pointer;
 }
-
-#optionsBox button:hover {
-  background: #d9d9d9;
+#options div:hover {
+  background: #eaeaea;
 }
-
+#solutionBox {
+  background: #e9f5e9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #b4d5b4;
+}
 footer {
-  margin-top: 40px;
+  margin-top: 60px;
+  color: #888;
   font-size: 14px;
-  color: #777;
+}
+.hidden {
+  display: none;
 }
