@@ -1,50 +1,47 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚙️ Anjali Quiz Bank – Control Panel</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📘 Anjali Quiz Bank – Control Panel</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <header>⚙️ Anjali Quiz Bank – Control Panel</header>
+  <header>📘 Anjali Quiz Bank – Control Panel</header>
 
-  <div class="container">
-    <label for="subject">📘 विषय चुनें:</label>
-    <select id="subject"><option value="">-- विषय चुनें --</option></select>
-
-    <label for="subtopic">📗 उप-विषय चुनें:</label>
-    <select id="subtopic"><option value="">-- उप-विषय चुनें --</option></select>
-
-    <label for="type">📝 प्रश्न प्रकार:</label>
-    <select id="type">
-      <option value="mcq">📘 MCQ (बहुविकल्पीय प्रश्न)</option>
-      <option value="one-liner">📌 One-Liner प्रश्न</option>
+  <main>
+    <label>📘 विषय चुनें:</label>
+    <select id="subject">
+      <option value="">-- विषय चुनें --</option>
     </select>
 
-    <label for="questionData">प्रश्न दर्ज करें:</label>
-    <textarea id="questionData" rows="8" placeholder="Q: मोहनजोदड़ो किस नदी के किनारे स्थित था?
-A) गंगा
-B) यमुना
-C) सिंधु
-D) सरस्वती
-Ans: C
-Exp: मोहनजोदड़ो सिंधु नदी के तट पर स्थित था।"></textarea>
+    <label>📗 उप-विषय चुनें:</label>
+    <select id="subtopic">
+      <option value="">-- उप-विषय चुनें --</option>
+    </select>
+
+    <label>📄 प्रश्न का प्रकार:</label>
+    <select id="type">
+      <option value="mcq">📘 MCQ (बहुविकल्पीय)</option>
+      <option value="one-liner">📌 One-Liner</option>
+    </select>
+
+    <textarea id="questionData" rows="9" placeholder="Q: प्रश्न यहाँ लिखें..."></textarea>
 
     <div class="btn-group">
-      <button id="saveBtn">💾 सेव करें</button>
+      <button id="saveBtn">💾 प्रश्न सेव करें</button>
       <button id="viewBtn">📄 प्रश्न देखें</button>
       <button id="deleteBtn" class="danger">🗑️ चयनित प्रश्न हटाएँ</button>
       <button id="uploadBtn" class="success">⬆️ Upload to GitHub</button>
     </div>
 
+    <input type="password" id="tokenBox" placeholder="🔑 GitHub Token (optional)" />
     <div id="questionList" class="hidden box"></div>
+  </main>
 
-    <input type="password" id="tokenBox" placeholder="🔑 यदि Token है, यहाँ लिखें (optional)" />
-  </div>
+  <footer>© 2026 Anjali Quiz Bank | Control Panel</footer>
 
-  <footer>© 2026 Anjali Quiz Bank | Admin Panel</footer>
-
-  <script src="upload.js" defer></script>
+  <script defer src="upload.js"></script>
 </body>
 </html>
