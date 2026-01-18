@@ -1,6 +1,6 @@
 /*****************************************************
- * 📘 Anjali Quiz Bank – upload.js (Final Synced Version)
- * ✅ Smart Parsing | ✅ Request Counter Reset | ✅ Selective Delete | ✅ GitHub Upload
+ * 📘 Anjali Quiz Bank – upload.js (GitHub Fixed Final)
+ * ✅ Smart Parsing | ✅ Request Counter Reset | ✅ Selective Delete | ✅ GitHub Upload (Fixed)
  *****************************************************/
 
 const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME";
@@ -195,6 +195,19 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
 });
 
 /*****************************************************
+ * 🔹 Subject Name Map Helper
+ *****************************************************/
+function subjectNameFromMap(fileName) {
+  const map = {
+    "general_knowledge.json": "General Knowledge",
+    "general_hindi.json": "General Hindi",
+    "numerical_ability.json": "Numerical & Mental Ability",
+    "reasoning.json": "Mental Aptitude / Reasoning"
+  };
+  return map[fileName] || fileName;
+}
+
+/*****************************************************
  * 🔹 Upload to GitHub
  *****************************************************/
 document.getElementById("uploadBtn").addEventListener("click", async () => {
@@ -232,9 +245,10 @@ async function uploadToGitHub(fileName, content) {
   const resJson = response.ok ? await response.json() : {};
   const sha = resJson.sha || null;
 
+  const subjectName = subjectNameFromMap(fileName);
   const payload = {
     message: `📤 Updated ${fileName} from Anjali Control Panel`,
-    content: btoa(JSON.stringify({ subject: fileName, subtopics: content }, null, 2)),
+    content: btoa(JSON.stringify({ subject: subjectName, subtopics: content }, null, 2)),
     branch: GITHUB_BRANCH,
     sha
   };
@@ -247,6 +261,7 @@ async function uploadToGitHub(fileName, content) {
 
   if (!putRes.ok) {
     const text = await putRes.text();
+    alert(`❌ Upload Failed: ${fileName}\n${text}`);
     throw new Error(text);
   }
 
