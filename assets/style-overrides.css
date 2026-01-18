@@ -1,0 +1,21 @@
+/* 🎙️ Anjali Speaking Indicator */
+.anjali-speaking {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  box-shadow: 0 0 10px #9be3ff;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #0077cc;
+  border: 1px solid #cce5ff;
+  z-index: 999;
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px #9be3ff; }
+  to { box-shadow: 0 0 15px #00bfff; }
+}
