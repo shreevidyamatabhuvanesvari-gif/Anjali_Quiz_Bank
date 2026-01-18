@@ -236,11 +236,11 @@ async function uploadToGitHub(fileName, content) {
   const sha = resJson.sha || null;
 
   const payload = {
-    message: `📤 Updated ${fileName} from Anjali Control Panel`,
-    content: btoa(JSON.stringify(content, null, 2)), // ✅ FIXED
-    branch: GITHUB_BRANCH,
-    sha
-  };
+  message: `📤 Updated ${fileName} from Anjali Control Panel`,
+  content: btoa(JSON.stringify(content, null, 2)),
+  branch: GITHUB_BRANCH,
+  sha
+};
 
   const putRes = await fetch(url, {
     method: "PUT",
